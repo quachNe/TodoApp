@@ -1,0 +1,16 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Base application theme -->
+    <style name="Base.Theme.TodoApp" parent="Theme.Material3.DayNight.NoActionBar">
+
+        <!-- Radio / Checkbox / Switch khi CHECK -->
+        <item name="colorControlActivated">#2563EB</item>
+
+        <!-- Radio / Checkbox khi UNCHECK -->
+        <item name="colorControlNormal">#94A3B8</item>
+
+    </style>
+
+    <style name="Theme.TodoApp" parent="Base.Theme.TodoApp" />
+
+</resources>
