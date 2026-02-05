@@ -11,8 +11,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.todoapp.R;
 import com.example.todoapp.api.ApiClient;
 import com.example.todoapp.api.AuthApi;
+import com.example.todoapp.models.User;
 import com.example.todoapp.requests.LoginRequest;
 import com.example.todoapp.responses.LoginResponse;
+import com.example.todoapp.utils.SessionManager;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -106,10 +108,12 @@ public class LoginActivity extends AppCompatActivity {
                 }
 
                 if (res.isSuccess()) {
-                    // ✅ Đăng nhập thành công
-                    // new SessionManager(LoginActivity.this).saveToken(res.getToken());
-                    // startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                    // finish();
+                    SessionManager session = new SessionManager(LoginActivity.this);
+
+                    session.saveUser(res.getToken(), res.getUser());
+
+                    startActivity(new Intent(LoginActivity.this, HomeActivity.class));
+                    finish();
                 } else {
                     // phòng hờ (trường hợp backend trả 200 nhưng success=false)
                     String msg = res.getMessage();

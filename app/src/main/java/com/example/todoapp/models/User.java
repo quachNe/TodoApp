@@ -13,6 +13,9 @@ public class User {
 
     private String gender;
 
+    private String avatar;
+    @SerializedName("avatar_url")
+    private String avatarUrl; // 👈 thêm đúng 1 dòng này
     public User() {}
 
     public int getId() { return id; }
@@ -29,4 +32,10 @@ public class User {
 
     public String getGender() { return gender; }
     public void setGender(String gender) { this.gender = gender; }
+
+    public String getAvatar() { return avatar; }
+    public void setAvatar(String avatar) { this.avatar = avatar; }
+
+    public String getAvatarUrl() { return avatarUrl; }
+    public void setAvatarUrl(String avatarUrl) { this.avatarUrl = avatarUrl; }
 }
