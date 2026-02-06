@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import com.example.todoapp.models.User;
 
 public class SessionManager {
+
     private static final String PREF_NAME = "todo_app";
 
     private static final String TOKEN_KEY = "token";
@@ -20,7 +21,7 @@ public class SessionManager {
         prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
     }
 
-    // ✅ Lưu toàn bộ user
+    // ✅ Lưu user + token
     public void saveUser(String token, User user) {
         prefs.edit()
                 .putString(TOKEN_KEY, token)
@@ -31,20 +32,30 @@ public class SessionManager {
                 .apply();
     }
 
-    public String getToken() {
+    // ✅ TOKEN
+    public String getAccessToken() {
         return prefs.getString(TOKEN_KEY, null);
     }
 
-    public String getAvatarUrl() {
-        return prefs.getString(AVATAR_URL, null);
+    // ✅ USER ID
+    public int getUserId() {
+        return prefs.getInt(USER_ID, -1);
+    }
+
+    public String getUsername() {
+        return prefs.getString(USERNAME, "");
     }
 
     public String getFullName() {
         return prefs.getString(FULL_NAME, "");
     }
 
+    public String getAvatarUrl() {
+        return prefs.getString(AVATAR_URL, null);
+    }
+
     public boolean isLoggedIn() {
-        return getToken() != null;
+        return getAccessToken() != null;
     }
 
     public void logout() {

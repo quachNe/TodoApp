@@ -122,7 +122,7 @@ public class RegisterActivity extends AppCompatActivity {
     /* =======================
        CALL API REGISTER
        ======================= */
-        AuthApi authApi = ApiClient.getClient().create(AuthApi.class);
+        AuthApi authApi = ApiClient.getClient(this).create(AuthApi.class);
         RegisterRequest request =
                 new RegisterRequest(username, password, fullName, gender);
 

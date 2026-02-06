@@ -80,7 +80,7 @@ public class LoginActivity extends AppCompatActivity {
         /* =======================
            CALL API LOGIN
            ======================= */
-        AuthApi authApi = ApiClient.getClient().create(AuthApi.class);
+        AuthApi authApi = ApiClient.getClient(this).create(AuthApi.class);
         LoginRequest request = new LoginRequest(username, password);
 
         authApi.login(request).enqueue(new Callback<LoginResponse>() {
@@ -110,7 +110,7 @@ public class LoginActivity extends AppCompatActivity {
                 if (res.isSuccess()) {
                     SessionManager session = new SessionManager(LoginActivity.this);
 
-                    session.saveUser(res.getToken(), res.getUser());
+                    session.saveUser(res.getAccessToken(), res.getUser());
 
                     startActivity(new Intent(LoginActivity.this, HomeActivity.class));
                     finish();

@@ -1,0 +1,67 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+
+    <!-- Folder -->
+    <path
+        android:fillColor="#3B82F6"
+        android:pathData="
+            M30,80
+            h50
+            l12,-15
+            h78
+            a10,10 0 0 1 10,10
+            v65
+            a10,10 0 0 1 -10,10
+            h-140
+            a10,10 0 0 1 -10,-10
+            v-50
+            a10,10 0 0 1 10,-10
+            z"/>
+
+    <!-- Folder inner -->
+    <path
+        android:fillColor="#DBEAFE"
+        android:pathData="
+            M40,95
+            h120
+            v45
+            h-120
+            z"/>
+
+    <!-- Paper 1 -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="
+            M75,70
+            h40
+            v35
+            h-40
+            z"/>
+
+    <!-- Paper 2 -->
+    <path
+        android:fillColor="#E0E7FF"
+        android:pathData="
+            M95,65
+            h40
+            v35
+            h-40
+            z"/>
+
+    <!-- Spark -->
+    <path
+        android:fillColor="#93C5FD"
+        android:pathData="
+            M100,40
+            l5,10
+            l10,5
+            l-10,5
+            l-5,10
+            l-5,-10
+            l-10,-5
+            l10,-5
+            z"/>
+</vector>
