@@ -1,10 +1,12 @@
 package com.example.todoapp.activities;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridLayout;
 import android.widget.ImageButton;
@@ -37,21 +39,23 @@ import retrofit2.Response;
 public class HomeActivity extends AppCompatActivity {
 
     private ImageView imgAvatar, btnMenu;
-    private TextView txtDate;
 
     private FloatingActionButton btnAddCategory;
-    private EditText edtSearch, edtAddTask;
-    private CardView cardAddTask, cardSearch;
+    private EditText edtSearch, edtModalCategory;
+    private CardView cardModal, cardSearch;
     private View overlay;
 
     private GridLayout gridCategory;
     private ImageView imgEmptyCategory;
-    private TextView txtEmptyTitle, txtEmptyHint;
+    private TextView txtEmptyTitle, txtEmptyHint, txtModalTitle, txtDate;
 
     private SessionManager session;
     private CategoryApi categoryApi;
 
-    private ImageButton btnSendTask;
+    private Button btnSave, btnCancel;
+
+    private boolean isEdit = false;
+    private int editingCategoryId = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,17 +68,19 @@ public class HomeActivity extends AppCompatActivity {
         txtDate = findViewById(R.id.txtDate);
 
         btnAddCategory = findViewById(R.id.btnAddCategory);
-        btnSendTask = findViewById(R.id.btnSendTask);
-        cardAddTask = findViewById(R.id.cardAddTask);
+        btnSave = findViewById(R.id.btnSave);
+        btnCancel = findViewById(R.id.btnCancel);
+        cardModal = findViewById(R.id.cardModal);
         cardSearch = findViewById(R.id.cardSearch);
         edtSearch = findViewById(R.id.edtSearch);
-        edtAddTask = findViewById(R.id.edtAddTask);
+        edtModalCategory = findViewById(R.id.edtModalCategory);
         overlay = findViewById(R.id.overlay);
 
         gridCategory = findViewById(R.id.gridCategory);
         imgEmptyCategory = findViewById(R.id.imgEmptyCategory);
         txtEmptyTitle = findViewById(R.id.txtEmptyTitle);
         txtEmptyHint = findViewById(R.id.txtEmptyHint);
+        txtModalTitle = findViewById(R.id.txtModalTitle);
 
         /* ================= INIT ================= */
         session = new SessionManager(this);
@@ -82,21 +88,24 @@ public class HomeActivity extends AppCompatActivity {
 
         setCurrentDate();
         loadUser();
-        loadCategories(); // ⭐ GỌI API Ở ĐÂY
+        loadCategories();
 
-        btnAddCategory.setOnClickListener(v -> toggleAddTask());
+        btnAddCategory.setOnClickListener(v -> {
+            toggleOpenModal();
+            txtModalTitle.setText("Thêm Danh Mục");
+        } );
 
         btnMenu.setOnClickListener(v ->
                 startActivity(new Intent(this, Settings.class))
         );
 
-        btnSendTask.setOnClickListener(v -> {
-            String name = edtAddTask.getText().toString();
-            addCategory(name);
+        btnSave.setOnClickListener(v -> {
+            String name = edtModalCategory.getText().toString();
+            submitCategory(name);
         });
 
-
-        overlay.setOnClickListener(v -> closeAddTask());
+        overlay.setOnClickListener(v -> closeModal());
+        btnCancel.setOnClickListener(v -> closeModal());
     }
 
     /* ================= DATE ================= */
@@ -127,19 +136,19 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
-    /* ================= ADD CATEGORY UI ================= */
-    private void toggleAddTask() {
-        if (cardAddTask.getVisibility() == View.GONE) {
-            cardAddTask.setVisibility(View.VISIBLE);
+    /* ================= Modal ================= */
+    private void toggleOpenModal() {
+        if (cardModal.getVisibility() == View.GONE) {
+            cardModal.setVisibility(View.VISIBLE);
             overlay.setVisibility(View.VISIBLE);
             lockSearch(true);
         } else {
-            closeAddTask();
+            closeModal();
         }
     }
 
-    private void closeAddTask() {
-        cardAddTask.setVisibility(View.GONE);
+    private void closeModal() {
+        cardModal.setVisibility(View.GONE);
         overlay.setVisibility(View.GONE);
         lockSearch(false);
     }
@@ -200,11 +209,21 @@ public class HomeActivity extends AppCompatActivity {
 
             TextView txtName = item.findViewById(R.id.txtCategoryName);
             TextView txtTaskCount = item.findViewById(R.id.txtTaskCount);
+            CardView cardView = item.findViewById(R.id.cardCategory);
+            // 👆 id CardView trong item_category.xml
 
             txtName.setText(category.getName());
             txtTaskCount.setText(String.valueOf(category.getTaskCount()));
             item.setTag(category.getId());
 
+            // ===== 🎨 SET MÀU CATEGORY =====
+            int colorIndex = Math.abs(category.getId()) % CATEGORY_COLORS.length;
+            String colorHex = CATEGORY_COLORS[colorIndex];
+
+            cardView.setCardBackgroundColor(Color.parseColor(colorHex));
+            txtName.setTextColor(Color.WHITE);
+
+            // ===== LONG CLICK =====
             item.setOnLongClickListener(v -> {
                 int categoryId = (int) v.getTag();
                 showCategoryMenu(v, categoryId);
@@ -213,6 +232,7 @@ public class HomeActivity extends AppCompatActivity {
 
             gridCategory.addView(item);
         }
+
     }
 
     private void showEmptyCategory(boolean isEmpty) {
@@ -237,9 +257,15 @@ public class HomeActivity extends AppCompatActivity {
 
         popupMenu.setOnMenuItemClickListener(item -> {
             if (item.getItemId() == R.id.action_edit) {
-                Toast.makeText(this,
-                        "Edit category id = " + categoryId,
-                        Toast.LENGTH_SHORT).show();
+                isEdit = true;
+                editingCategoryId = categoryId;
+
+                TextView txtName = anchor.findViewById(R.id.txtCategoryName);
+                edtModalCategory.setText(txtName.getText().toString());
+
+                toggleOpenModal();
+                edtModalCategory.requestFocus();
+                txtModalTitle.setText("Sửa Danh Mục");
                 return true;
             }
 
@@ -256,48 +282,111 @@ public class HomeActivity extends AppCompatActivity {
         popupMenu.show();
     }
 
-    private void addCategory(String name) {
+    private void submitCategory(String name) {
         if (name == null || name.trim().isEmpty()) {
-            Toast.makeText(this, "Tên danh mục không được để trống", Toast.LENGTH_SHORT).show();
+            edtModalCategory.requestFocus();
             return;
         }
 
         CategoryRequest request = new CategoryRequest(name.trim());
 
-        categoryApi.createCategory(request)
-                .enqueue(new Callback<CategoryResponse>() {
-                    @Override
-                    public void onResponse(Call<CategoryResponse> call,
-                                           Response<CategoryResponse> response) {
+        Call<CategoryResponse> call;
 
-                        if (response.isSuccessful() && response.body() != null) {
-                            Toast.makeText(
-                                    HomeActivity.this,
-                                    "Đã tạo danh mục",
-                                    Toast.LENGTH_SHORT
-                            ).show();
+        // ====== XỬ LÝ THÊM / SỬA ======
+        if (isEdit) {
+            call = categoryApi.updateCategory(editingCategoryId, request);
+        } else {
+            call = categoryApi.createCategory(request);
+        }
 
-                            edtAddTask.setText("");   // clear input
-                            closeAddTask();           // đóng popup
-                            loadCategories();         // reload danh mục
-                        } else {
-                            Toast.makeText(
-                                    HomeActivity.this,
-                                    "Tạo danh mục thất bại",
-                                    Toast.LENGTH_SHORT
-                            ).show();
-                        }
-                    }
+        call.enqueue(new Callback<CategoryResponse>() {
+            @Override
+            public void onResponse(Call<CategoryResponse> call,
+                                   Response<CategoryResponse> response) {
 
-                    @Override
-                    public void onFailure(Call<CategoryResponse> call, Throwable t) {
-                        Toast.makeText(
-                                HomeActivity.this,
-                                "Không kết nối được server",
-                                Toast.LENGTH_SHORT
-                        ).show();
-                    }
-                });
+                if (response.isSuccessful()) {
+                    edtModalCategory.setText("");
+                    isEdit = false;
+                    editingCategoryId = -1;
+
+                    closeModal();
+                    loadCategories();
+                } else {
+                    Toast.makeText(
+                            HomeActivity.this,
+                            isEdit ? "Cập nhật danh mục thất bại" : "Tạo danh mục thất bại",
+                            Toast.LENGTH_SHORT
+                    ).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<CategoryResponse> call, Throwable t) {
+                Toast.makeText(
+                        HomeActivity.this,
+                        "Không kết nối được server",
+                        Toast.LENGTH_SHORT
+                ).show();
+            }
+        });
     }
+
+    private static final String[] CATEGORY_COLORS = {
+            "#3B82F6", // Blue
+            "#22C55E", // Green
+            "#F59E0B", // Amber
+            "#EF4444", // Red
+            "#8B5CF6", // Purple
+            "#06B6D4", // Cyan
+            "#F97316", // Orange
+            "#EC4899", // Pink
+            "#10B981", // Emerald
+            "#6366F1", // Indigo
+
+            "#84CC16", // Lime
+            "#14B8A6", // Teal
+            "#A855F7", // Violet
+            "#E11D48", // Rose
+            "#0EA5E9", // Sky
+            "#F43F5E", // Rose Red
+            "#22D3EE", // Light Cyan
+            "#4ADE80", // Light Green
+            "#FB7185", // Soft Red
+            "#C084FC", // Light Purple
+
+            "#FACC15", // Yellow
+            "#FDBA74", // Peach
+            "#67E8F9", // Ice Blue
+            "#A7F3D0", // Mint
+            "#FCA5A5", // Light Red
+            "#E879F9", // Magenta
+            "#93C5FD", // Light Blue
+            "#D9F99D", // Light Lime
+            "#FDE68A", // Light Yellow
+            "#FBCFE8", // Light Pink
+
+            "#64748B", // Slate
+            "#475569", // Dark Slate
+            "#1E293B", // Navy Dark
+            "#334155", // Blue Gray
+            "#78716C", // Stone
+            "#A8A29E", // Neutral
+            "#0F766E", // Deep Teal
+            "#166534", // Deep Green
+            "#7C2D12", // Brown
+            "#713F12", // Dark Gold
+
+            "#365314", // Olive
+            "#3F6212", // Olive Dark
+            "#4C1D95", // Deep Purple
+            "#881337", // Deep Pink
+            "#7F1D1D", // Deep Red
+            "#1F2937", // Dark Gray
+            "#020617", // Almost Black
+            "#312E81", // Indigo Dark
+            "#155E75", // Blue Teal
+            "#064E3B"  // Dark Emerald
+    };
+
 
 }

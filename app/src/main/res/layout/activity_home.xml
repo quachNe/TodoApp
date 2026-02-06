@@ -99,7 +99,6 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 
-    <!-- ================= CATEGORY GRID ================= -->
     <!-- ================= CATEGORY CONTENT ================= -->
     <androidx.core.widget.NestedScrollView
         android:id="@+id/scrollCategory"
@@ -164,8 +163,6 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
 
-
-
     <!-- ================= OVERLAY ================= -->
     <View
         android:id="@+id/overlay"
@@ -180,48 +177,112 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- ================= ADD TASK ================= -->
+    <!-- ================= Modal ================= -->
     <androidx.cardview.widget.CardView
-        android:id="@+id/cardAddTask"
+        android:id="@+id/cardModal"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
         android:visibility="gone"
-        app:cardCornerRadius="22dp"
-        app:cardElevation="10dp"
+        app:cardElevation="12dp"
+
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="12dp">
+            android:layout_height="wrap_content">
 
-            <EditText
-                android:id="@+id/edtAddTask"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:hint="Tạo mới danh mục"
-                android:background="@null"
-                android:textSize="14sp"
-                android:textColor="#1F2937"
-                android:textColorHint="#9CA3AF"
+            <!-- ===== HEADER / TITLE ===== -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/layoutModalHeader"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:background="#3B82F6"
+                android:paddingHorizontal="16dp"
+                app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/btnSendTask"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"/>
+                app:layout_constraintEnd_toEndOf="parent">
 
-            <ImageButton
-                android:id="@+id/btnSendTask"
-                android:layout_width="42dp"
-                android:layout_height="42dp"
-                android:background="@drawable/bg_circle_primary"
-                android:src="@drawable/ic_send"
-                app:tint="#FFFFFF"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"/>
+                <TextView
+                    android:id="@+id/txtModalTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="#FFFFFF"
+
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"/>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <!-- ===== BODY ===== -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="20dp"
+
+                app:layout_constraintTop_toBottomOf="@id/layoutModalHeader"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent">
+
+                <!-- INPUT -->
+                <EditText
+                    android:id="@+id/edtModalCategory"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:hint="Tên danh mục"
+                    android:background="@drawable/bg_input"
+                    android:paddingHorizontal="14dp"
+                    android:textSize="15sp"
+                    android:textColor="#1F2937"
+                    android:textColorHint="#9CA3AF"
+
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"/>
+
+                <!-- CANCEL -->
+                <Button
+                    android:id="@+id/btnCancel"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:text="Hủy"
+                    android:textAllCaps="false"
+                    android:textSize="15sp"
+                    android:textColor="#374151"
+                    android:backgroundTint="#E5E7EB"
+                    android:layout_marginTop="24dp"
+                    android:layout_marginEnd="8dp"
+
+                    app:layout_constraintTop_toBottomOf="@id/edtModalCategory"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/btnSave"
+                    app:layout_constraintHorizontal_chainStyle="packed"/>
+
+                <!-- SAVE -->
+                <Button
+                    android:id="@+id/btnSave"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:text="Lưu"
+                    android:textAllCaps="false"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:textColor="#FFFFFF"
+                    android:backgroundTint="#3B82F6"
+                    android:layout_marginTop="24dp"
+                    android:layout_marginStart="8dp"
+
+                    app:layout_constraintTop_toBottomOf="@id/edtModalCategory"
+                    app:layout_constraintStart_toEndOf="@id/btnCancel"
+                    app:layout_constraintEnd_toEndOf="parent"/>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 

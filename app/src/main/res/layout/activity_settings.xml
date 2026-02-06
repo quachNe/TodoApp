@@ -13,7 +13,6 @@
         android:layout_height="wrap_content"
         app:cardCornerRadius="0dp"
         app:cardElevation="0dp"
-        app:cardBackgroundColor="#FFFFFF"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -21,14 +20,14 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="#3B82F6"
             android:padding="18dp">
 
             <ImageView
                 android:id="@+id/btnBack"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
                 android:src="@drawable/ic_media_previous"
-                app:tint="#1F2937"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"/>
@@ -37,11 +36,11 @@
                 android:id="@+id/txtTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="14dp"
+                android:layout_marginStart="10dp"
                 android:text="Thiết lập tài khoản"
                 android:textSize="15sp"
                 android:textStyle="bold"
-                android:textColor="#1F2937"
+                android:textColor="#ffffff"
                 app:layout_constraintStart_toEndOf="@id/btnBack"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"/>
