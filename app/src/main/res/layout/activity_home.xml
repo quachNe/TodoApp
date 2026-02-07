@@ -2,9 +2,10 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F3F4F6">
+    android:background="@drawable/bg_app">
 
     <!-- ================= HEADER ================= -->
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -14,43 +15,58 @@
         android:paddingStart="20dp"
         android:paddingEnd="20dp"
         android:paddingTop="28dp"
-        android:paddingBottom="48dp"
-        android:background="#3B82F6"
-        app:layout_constraintTop_toTopOf="parent">
+        android:paddingBottom="48dp">
 
-        <ImageView
-            android:id="@+id/btnMenu"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:src="@drawable/ic_menu"
-            app:tint="#FFFFFF"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
-
-        <TextView
-            android:id="@+id/txtDate"
-            android:layout_width="wrap_content"
+        <!-- LEFT: Greeting -->
+        <LinearLayout
+            android:id="@+id/layoutGreeting"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Hôm nay"
-            android:textColor="#FFFFFF"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            app:layout_constraintStart_toEndOf="@id/btnMenu"
+            android:orientation="vertical"
+
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toStartOf="@id/imgAvatar"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"/>
+            app:layout_constraintBottom_toBottomOf="parent">
 
-        <ImageView
-            android:id="@+id/imgAvatar"
-            android:layout_width="38dp"
-            android:layout_height="38dp"
-            android:background="@drawable/bg_circle"
-            android:padding="3dp"
+            <TextView
+                android:id="@+id/txtHello"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Xin chào!"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp"/>
+
+            <TextView
+                android:id="@+id/txtUserName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#FFFFFF"
+                android:textSize="20sp"
+                android:textStyle="bold"/>
+        </LinearLayout>
+
+        <!-- RIGHT: Avatar -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            app:cardCornerRadius="5dp"
+            app:cardElevation="0dp"
+
+            app:cardUseCompatPadding="false"
+            app:cardPreventCornerOverlap="false"
+            app:cardBackgroundColor="@android:color/transparent"
+
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <ImageView
+                android:id="@+id/imgAvatar"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"/>
+        </androidx.cardview.widget.CardView>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- ================= SEARCH ================= -->
@@ -60,9 +76,10 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginTop="-24dp"
+        android:layout_marginTop="-15dp"
         app:cardCornerRadius="20dp"
         app:cardElevation="6dp"
+        app:cardBackgroundColor="#F3F4F6"
         app:layout_constraintTop_toBottomOf="@id/header"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -77,7 +94,7 @@
                 android:layout_width="20dp"
                 android:layout_height="20dp"
                 android:src="@drawable/ic_search"
-                app:tint="#9CA3AF"
+                app:tint="#6B7280"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"/>
@@ -89,7 +106,7 @@
                 android:hint="Tìm kiếm"
                 android:background="@null"
                 android:textSize="14sp"
-                android:textColor="#1F2937"
+                android:textColor="#111827"
                 android:textColorHint="#9CA3AF"
                 android:paddingStart="10dp"
                 app:layout_constraintStart_toEndOf="@id/icSearch"
@@ -140,9 +157,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Chưa có danh mục nào"
-                android:textSize="16sp"
+                android:textSize="18sp"
                 android:textStyle="bold"
-                android:textColor="#1F2937"
+                android:textColor="#FFFFFF"
                 android:visibility="gone"
                 app:layout_constraintTop_toBottomOf="@id/imgEmptyCategory"
                 app:layout_constraintStart_toStartOf="parent"
@@ -153,8 +170,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Nhấn + để tạo danh mục mới"
-                android:textSize="13sp"
-                android:textColor="#6B7280"
+                android:textSize="18sp"
+                android:textColor="#FFFFFF"
                 android:visibility="gone"
                 app:layout_constraintTop_toBottomOf="@id/txtEmptyTitle"
                 app:layout_constraintStart_toStartOf="parent"
@@ -183,7 +200,11 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:visibility="gone"
-        app:cardElevation="12dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="16dp"
+        app:cardElevation="14dp"
+        app:cardCornerRadius="20dp"
 
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -198,11 +219,9 @@
                 android:id="@+id/layoutModalHeader"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
-                android:background="#3B82F6"
-                android:paddingHorizontal="16dp"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent">
+                android:background='@drawable/bg_app'
+                android:paddingHorizontal="20dp"
+                app:layout_constraintTop_toTopOf="parent">
 
                 <TextView
                     android:id="@+id/txtModalTitle"
@@ -211,12 +230,10 @@
                     android:textSize="18sp"
                     android:textStyle="bold"
                     android:textColor="#FFFFFF"
-
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"/>
-
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <!-- ===== BODY ===== -->
@@ -224,10 +241,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="20dp"
-
-                app:layout_constraintTop_toBottomOf="@id/layoutModalHeader"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent">
+                app:layout_constraintTop_toBottomOf="@id/layoutModalHeader">
 
                 <!-- INPUT -->
                 <EditText
@@ -240,62 +254,78 @@
                     android:textSize="15sp"
                     android:textColor="#1F2937"
                     android:textColorHint="#9CA3AF"
-
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"/>
 
-                <!-- CANCEL -->
-                <Button
-                    android:id="@+id/btnCancel"
+                <!-- ERROR -->
+                <TextView
+                    android:id="@+id/txtCategoryError"
                     android:layout_width="0dp"
-                    android:layout_height="48dp"
-                    android:text="Hủy"
-                    android:textAllCaps="false"
-                    android:textSize="15sp"
-                    android:textColor="#374151"
-                    android:backgroundTint="#E5E7EB"
-                    android:layout_marginTop="24dp"
-                    android:layout_marginEnd="8dp"
-
+                    android:layout_height="wrap_content"
+                    android:textSize="13sp"
+                    android:textColor="#EF4444"
+                    android:visibility="gone"
+                    android:layout_marginTop="6dp"
                     app:layout_constraintTop_toBottomOf="@id/edtModalCategory"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toStartOf="@id/btnSave"
-                    app:layout_constraintHorizontal_chainStyle="packed"/>
-
-                <!-- SAVE -->
-                <Button
-                    android:id="@+id/btnSave"
-                    android:layout_width="0dp"
-                    android:layout_height="48dp"
-                    android:text="Lưu"
-                    android:textAllCaps="false"
-                    android:textSize="15sp"
-                    android:textStyle="bold"
-                    android:textColor="#FFFFFF"
-                    android:backgroundTint="#3B82F6"
-                    android:layout_marginTop="24dp"
-                    android:layout_marginStart="8dp"
-
-                    app:layout_constraintTop_toBottomOf="@id/edtModalCategory"
-                    app:layout_constraintStart_toEndOf="@id/btnCancel"
                     app:layout_constraintEnd_toEndOf="parent"/>
 
+                <!-- BUTTON GROUP -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="20dp"
+                    android:weightSum="2"
+                    app:layout_constraintTop_toBottomOf="@id/txtCategoryError"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent">
+
+                    <Button
+                        android:id="@+id/btnCancel"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="1"
+                        android:text="Hủy"
+                        android:textAllCaps="false"
+                        android:textSize="15sp"
+                        android:textColor="#374151"
+                        android:backgroundTint="#E5E7EB"
+                        android:layout_marginEnd="8dp"/>
+
+                    <Button
+                        android:id="@+id/btnSave"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="1"
+                        android:text="Lưu"
+                        android:textAllCaps="false"
+                        android:textSize="15sp"
+                        android:textStyle="bold"
+                        android:textColor="#FFFFFF"
+                        android:backgroundTint="#3B82F6"
+                        android:layout_marginStart="8dp"/>
+                </LinearLayout>
+
             </androidx.constraintlayout.widget.ConstraintLayout>
+
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 
-    <!-- ================= FAB ================= -->
+    <!-- ================= BUTTON ADD ================= -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/btnAddCategory"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_add"
         android:layout_margin="24dp"
-        app:backgroundTint="#3B82F6"
-        app:tint="#FFFFFF"
+
+        app:backgroundTint="#FFFFFF"
+        app:tint="#6366F1"
         app:elevation="10dp"
+
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 

@@ -3,13 +3,9 @@ package com.example.todoapp.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ImageView;
-import android.widget.TextView;
+import android.widget.LinearLayout;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 import com.example.todoapp.MainActivity;
 import com.example.todoapp.R;
@@ -19,7 +15,7 @@ public class Settings extends AppCompatActivity {
 
     ImageView btnBack;
 
-    TextView btnProfile, btnChangePass, btnLogout;
+    LinearLayout btnProfile, btnChangePass, btnLogout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F3F4F6">
+    android:background="#FFFFFF">
 
     <!-- ================= HEADER ================= -->
     <androidx.cardview.widget.CardView
@@ -20,7 +20,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#3B82F6"
+            android:background="@drawable/bg_app"
             android:padding="18dp">
 
             <ImageView
@@ -28,6 +28,7 @@
                 android:layout_width="25dp"
                 android:layout_height="25dp"
                 android:src="@drawable/ic_media_previous"
+                app:tint="#FFFFFF"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"/>
@@ -38,39 +39,42 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
                 android:text="Thiết lập tài khoản"
-                android:textSize="15sp"
+                android:textSize="18sp"
                 android:textStyle="bold"
-                android:textColor="#ffffff"
+                android:textColor="#FFFFFF"
                 app:layout_constraintStart_toEndOf="@id/btnBack"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 
-    <!-- ================= SETTINGS ITEMS ================= -->
-    <LinearLayout
+    <!-- ================= CONTENT CARD ================= -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/contentCard"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:layout_margin="16dp"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="4dp"
+        app:cardBackgroundColor="#FFFFFF"
         app:layout_constraintTop_toBottomOf="@id/headerCard"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- ===== Profile ===== -->
-        <androidx.cardview.widget.CardView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            app:cardCornerRadius="0dp"
-            app:cardElevation="0dp"
-            app:cardBackgroundColor="#FFFFFF">
+            android:orientation="vertical">
 
+            <!-- ===== Profile ===== -->
             <LinearLayout
+                android:id="@+id/btnProfile"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="56dp"
                 android:orientation="horizontal"
-                android:padding="16dp"
-                android:gravity="center_vertical">
+                android:gravity="center_vertical"
+                android:paddingHorizontal="16dp"
+                android:background="?attr/selectableItemBackground">
 
                 <ImageView
                     android:layout_width="24dp"
@@ -79,31 +83,35 @@
                     app:tint="#1F2937"/>
 
                 <TextView
-                    android:id="@+id/btnProfile"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="12dp"
+                    android:layout_weight="1"
                     android:text="Thông tin tài khoản"
                     android:textSize="15sp"
                     android:textColor="#1F2937"/>
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_chevron_right"
+                    app:tint="#9CA3AF"/>
             </LinearLayout>
-        </androidx.cardview.widget.CardView>
 
-        <!-- ===== Change Password ===== -->
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            app:cardCornerRadius="0dp"
-            app:cardElevation="0dp"
-            app:cardBackgroundColor="#FFFFFF">
-
-            <LinearLayout
+            <View
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="1dp"
+                android:background="#E5E7EB"/>
+
+            <!-- ===== Change Password ===== -->
+            <LinearLayout
+                android:id="@+id/btnChangePass"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
                 android:orientation="horizontal"
-                android:padding="16dp"
-                android:gravity="center_vertical">
+                android:gravity="center_vertical"
+                android:paddingHorizontal="16dp"
+                android:background="?attr/selectableItemBackground">
 
                 <ImageView
                     android:layout_width="24dp"
@@ -112,49 +120,52 @@
                     app:tint="#1F2937"/>
 
                 <TextView
-                    android:id="@+id/btnChangePass"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="12dp"
+                    android:layout_weight="1"
                     android:text="Đổi mật khẩu"
                     android:textSize="15sp"
                     android:textColor="#1F2937"/>
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_chevron_right"
+                    app:tint="#9CA3AF"/>
             </LinearLayout>
-        </androidx.cardview.widget.CardView>
 
-        <!-- ===== Logout ===== -->
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            app:cardCornerRadius="0dp"
-            app:cardElevation="0dp"
-            app:cardBackgroundColor="#FFFFFF">
-
-            <LinearLayout
+            <View
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="1dp"
+                android:background="#E5E7EB"/>
+
+            <!-- ===== Logout ===== -->
+            <LinearLayout
+                android:id="@+id/btnLogout"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
                 android:orientation="horizontal"
-                android:padding="16dp"
-                android:gravity="center_vertical">
+                android:gravity="center_vertical"
+                android:paddingHorizontal="16dp"
+                android:background="?attr/selectableItemBackground">
 
                 <ImageView
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:src="@drawable/ic_logout"
-                    app:tint="#1F2937"/>
+                    app:tint="#DC2626"/>
 
                 <TextView
-                    android:id="@+id/btnLogout"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="12dp"
                     android:text="Đăng xuất"
                     android:textSize="15sp"
-                    android:textColor="#1F2937"/>
+                    android:textColor="#DC2626"/>
             </LinearLayout>
-        </androidx.cardview.widget.CardView>
 
-    </LinearLayout>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
