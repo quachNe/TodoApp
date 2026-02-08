@@ -12,9 +12,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridLayout;
 import android.widget.ImageView;
-import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.PopupWindow;
+import android.view.ViewGroup;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
@@ -27,6 +28,8 @@ import com.example.todoapp.requests.CategoryRequest;
 import com.example.todoapp.responses.CategoryResponse;
 import com.example.todoapp.utils.SessionManager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -83,6 +86,7 @@ public class HomeActivity extends AppCompatActivity {
         txtModalTitle = findViewById(R.id.txtModalTitle);
         txtUserName = findViewById(R.id.txtUserName);
         txtCategoryError = findViewById(R.id.txtCategoryError);
+
 
         /* ================= INIT ================= */
         session = new SessionManager(this);
@@ -208,7 +212,7 @@ public class HomeActivity extends AppCompatActivity {
                                    Response<List<CategoryResponse>> response) {
 
                 if (response.isSuccessful() && response.body() != null) {
-                    allCategories = response.body(); // 👈 quan trọng
+                    allCategories = response.body();
                     loadCategoryToGrid(allCategories);
                 } else {
                     showEmptyCategory(true);
@@ -238,21 +242,26 @@ public class HomeActivity extends AppCompatActivity {
                     .inflate(R.layout.item_category, gridCategory, false);
 
             TextView txtName = item.findViewById(R.id.txtCategoryName);
-            TextView txtTaskCount = item.findViewById(R.id.txtTaskCount);
             CardView cardView = item.findViewById(R.id.cardCategory);
 
-            txtName.setText(category.getName());
-            txtTaskCount.setText(String.valueOf(category.getTaskCount()));
+            txtName.setText(
+                    category.getName() + " (" + category.getTaskCount() + ")"
+            );
             item.setTag(category.getId());
 
             int colorIndex = Math.abs(category.getId()) % CATEGORY_COLORS.length;
             cardView.setCardBackgroundColor(Color.parseColor(CATEGORY_COLORS[colorIndex]));
             txtName.setTextColor(Color.WHITE);
 
-            item.setOnLongClickListener(v -> {
-                showCategoryMenu(v, (int) v.getTag());
-                return true;
+            ImageView btnMore = item.findViewById(R.id.btnMenu);
+
+            cardView.setOnClickListener(v -> {
+                startActivity(new Intent(this, CategoryDetailActivity.class));
             });
+            btnMore.setOnClickListener(v -> {
+                showCategoryMenu(item, category.getId());
+            });
+
 
             gridCategory.addView(item);
         }
@@ -267,29 +276,56 @@ public class HomeActivity extends AppCompatActivity {
 
     /* ================= MENU ================= */
     private void showCategoryMenu(View anchor, int categoryId) {
-        PopupMenu popupMenu = new PopupMenu(this, anchor, Gravity.END, 0, R.style.CustomPopupMenu);
-        popupMenu.getMenuInflater().inflate(R.menu.menu_category, popupMenu.getMenu());
+        View view = getLayoutInflater()
+                .inflate(R.layout.popup_category_menu, null);
 
-        popupMenu.setOnMenuItemClickListener(item -> {
-            if (item.getItemId() == R.id.action_edit) {
-                isEdit = true;
-                editingCategoryId = categoryId;
+        PopupWindow popup = new PopupWindow(
+                view,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                true
+        );
 
-                TextView txtName = anchor.findViewById(R.id.txtCategoryName);
-                edtModalCategory.setText(txtName.getText());
-                toggleOpenModal();
-                txtModalTitle.setText("Sửa Danh Mục");
-                return true;
-            }
-            return false;
+        popup.setOutsideTouchable(true);
+        popup.setElevation(10f);
+
+        TextView btnEdit = view.findViewById(R.id.btnEdit);
+        TextView btnDelete = view.findViewById(R.id.btnDelete);
+
+        btnEdit.setOnClickListener(v -> {
+            isEdit = true;
+            editingCategoryId = categoryId;
+
+            TextView txtName = anchor.findViewById(R.id.txtCategoryName);
+            // chỉ lấy tên, bỏ "(0)"
+            String fullText = txtName.getText().toString();
+            String nameOnly = fullText.replaceAll("\\s*\\(.*\\)", "");
+            edtModalCategory.setText(nameOnly);
+
+            toggleOpenModal();
+            txtModalTitle.setText("Sửa Danh Mục");
+            popup.dismiss();
         });
 
-        popupMenu.show();
+        btnDelete.setOnClickListener(v -> {
+            popup.dismiss();
+            showDeleteConfirm(categoryId);
+        });
+
+        // hiện menu gọn sát góc phải
+        popup.showAsDropDown(anchor, -270, -310, Gravity.END);
     }
+
 
     /* ================= CREATE / UPDATE ================= */
     private void submitCategory(String name) {
-        if (name == null || name.trim().isEmpty()) return;
+        TextInputEditText txtModalTitle = findViewById(R.id.edtModalCategory);
+        TextView txtCategoryError = findViewById(R.id.txtCategoryError);
+
+        if (name == null || name.trim().isEmpty()) {
+            txtModalTitle.requestFocus();
+            return;
+        }
 
         CategoryRequest request = new CategoryRequest(name.trim());
         Call<CategoryResponse> call = isEdit
@@ -300,6 +336,11 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<CategoryResponse> call,
                                    Response<CategoryResponse> response) {
+                if (response.code() == 409) {
+                    txtCategoryError.setText("Tên danh mục đã tồn tại!");
+                    txtCategoryError.setVisibility(View.VISIBLE);
+                    return;
+                }
                 if (response.isSuccessful()) {
                     resetModal();
                     loadCategories();
@@ -316,7 +357,59 @@ public class HomeActivity extends AppCompatActivity {
 
     /* ================= COLORS ================= */
     private static final String[] CATEGORY_COLORS = {
-            "#3B82F6","#22C55E","#F59E0B","#EF4444","#8B5CF6",
-            "#06B6D4","#F97316","#EC4899","#10B981","#6366F1"
+            "#22D3EE", // Cyan sáng
+            "#34D399", // Emerald sáng
+            "#FBBF24", // Amber sáng
+            "#FB7185", // Rose nổi
+            "#A78BFA", // Violet sáng
+            "#60A5FA", // Blue sáng
+            "#F97316", // Orange nổi
+            "#F472B6", // Pink neon
+            "#2DD4BF", // Teal sáng
+            "#818CF8"  // Indigo sáng
     };
+
+    private void deleteCategory(int categoryId) {
+        categoryApi.deleteCategory(categoryId)
+                .enqueue(new Callback<Void>() {
+                    @Override
+                    public void onResponse(Call<Void> call, Response<Void> response) {
+                        if (response.isSuccessful()) {
+                            Toast.makeText(
+                                    HomeActivity.this,
+                                    "Đã xóa danh mục",
+                                    Toast.LENGTH_SHORT
+                            ).show();
+
+                            loadCategories(); // reload grid
+                        } else {
+                            Toast.makeText(
+                                    HomeActivity.this,
+                                    "Không thể xóa danh mục",
+                                    Toast.LENGTH_SHORT
+                            ).show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<Void> call, Throwable t) {
+                        Toast.makeText(
+                                HomeActivity.this,
+                                "Lỗi kết nối server",
+                                Toast.LENGTH_SHORT
+                        ).show();
+                    }
+                });
+    }
+
+    private void showDeleteConfirm(int categoryId) {
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Xóa danh mục?")
+                .setMessage("Danh mục này sẽ bị xóa vĩnh viễn. Bạn có chắc không?")
+                .setPositiveButton("Xóa", (dialog, which) -> {
+                    deleteCategory(categoryId);
+                })
+                .setNegativeButton("Hủy", null)
+                .show();
+    }
 }

@@ -14,30 +14,28 @@
         android:layout_height="match_parent"
         android:padding="16dp">
 
-        <!-- Badge -->
-        <TextView
-            android:id="@+id/txtTaskCount"
+        <!-- Menu 3 chấm -->
+        <ImageView
+            android:id="@+id/btnMenu"
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:textColor="#3B82F6"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:gravity="center"
-            android:background="@drawable/bg_badge_white"
+            android:src="@drawable/ic_more_vert"
+            app:tint="#FFFFFF"
+            android:contentDescription="menu"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>
 
-        <!-- Category name -->
+        <!-- Category name + count -->
         <TextView
             android:id="@+id/txtCategoryName"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Work"
             android:textColor="#FFFFFF"
             android:textSize="18sp"
             android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"/>
+            app:layout_constraintEnd_toStartOf="@id/btnMenu"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

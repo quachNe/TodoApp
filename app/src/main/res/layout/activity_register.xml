@@ -6,9 +6,8 @@
     android:layout_height="match_parent"
     android:background="@drawable/bg_app">
 
-    <!-- LOGIN CARD -->
     <androidx.cardview.widget.CardView
-        android:id="@+id/cardLogin"
+        android:id="@+id/cardRegister"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="24dp"
@@ -29,16 +28,17 @@
             android:paddingTop="32dp"
             android:paddingBottom="28dp">
 
-            <!-- LOGO -->
-            <ImageView
-                android:id="@+id/ivLogo"
-                android:layout_width="72dp"
-                android:layout_height="72dp"
+            <!-- TITLE -->
+            <TextView
+                android:id="@+id/tvTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:layout_marginBottom="24dp"
-                android:src="@drawable/todo_app"
-                android:scaleType="fitCenter"
-                android:contentDescription="App Logo"/>
+                android:layout_marginBottom="28dp"
+                android:text="Đăng Ký Tài Khoản"
+                android:textSize="28sp"
+                android:textStyle="bold"
+                android:textColor="#0284C7"/>
 
             <!-- FULL NAME -->
             <com.google.android.material.textfield.TextInputLayout
@@ -47,10 +47,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:boxBackgroundColor="#F8FAFC"
-                app:boxCornerRadiusBottomEnd="20dp"
-                app:boxCornerRadiusBottomStart="20dp"
-                app:boxCornerRadiusTopEnd="20dp"
                 app:boxCornerRadiusTopStart="20dp"
+                app:boxCornerRadiusTopEnd="20dp"
+                app:boxCornerRadiusBottomStart="20dp"
+                app:boxCornerRadiusBottomEnd="20dp"
                 app:boxStrokeColor="#CBD5E1"
                 app:boxStrokeWidthFocused="2dp"
                 app:startIconDrawable="@drawable/ic_person_outline"
@@ -61,6 +61,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Họ và tên"
+                    android:inputType="textPersonName"
                     android:imeOptions="actionNext"
                     android:paddingVertical="16dp"
                     android:singleLine="true"
@@ -69,11 +70,20 @@
                     android:textSize="16sp"/>
             </com.google.android.material.textfield.TextInputLayout>
 
+            <!-- GENDER LABEL -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Giới tính"
+                android:textSize="14sp"
+                android:textColor="#64748B"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="6dp"/>
+
             <!-- GENDER -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
                 app:cardCornerRadius="20dp"
                 app:cardElevation="0dp"
                 app:strokeColor="#CBD5E1"
@@ -84,7 +94,6 @@
                     android:id="@+id/rgGender"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
                     android:orientation="horizontal"
                     android:paddingHorizontal="20dp"
                     android:paddingVertical="14dp">
@@ -95,6 +104,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="Nam"
+                        android:checked="true"
                         android:textSize="15sp"
                         android:textColor="#0F172A"
                         app:buttonTint="@color/radio_gender"/>
@@ -118,7 +128,6 @@
                         android:textSize="15sp"
                         android:textColor="#0F172A"
                         app:buttonTint="@color/radio_gender"/>
-
                 </RadioGroup>
             </com.google.android.material.card.MaterialCardView>
 
@@ -130,10 +139,10 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 app:boxBackgroundColor="#F8FAFC"
-                app:boxCornerRadiusBottomEnd="20dp"
-                app:boxCornerRadiusBottomStart="20dp"
-                app:boxCornerRadiusTopEnd="20dp"
                 app:boxCornerRadiusTopStart="20dp"
+                app:boxCornerRadiusTopEnd="20dp"
+                app:boxCornerRadiusBottomStart="20dp"
+                app:boxCornerRadiusBottomEnd="20dp"
                 app:boxStrokeColor="#CBD5E1"
                 app:boxStrokeWidthFocused="2dp"
                 app:startIconDrawable="@drawable/ic_person_outline"
@@ -144,12 +153,13 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Tên đăng nhập"
+                    android:inputType="textEmailAddress"
                     android:imeOptions="actionNext"
                     android:paddingVertical="16dp"
                     android:singleLine="true"
                     android:textColor="#0F172A"
                     android:textColorHint="#94A3B8"
-                    android:textSize="16sp" />
+                    android:textSize="16sp"/>
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- PASSWORD -->
@@ -160,50 +170,46 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 app:boxBackgroundColor="#F8FAFC"
-                app:boxCornerRadiusBottomEnd="20dp"
-                app:boxCornerRadiusBottomStart="20dp"
-                app:boxCornerRadiusTopEnd="20dp"
                 app:boxCornerRadiusTopStart="20dp"
+                app:boxCornerRadiusTopEnd="20dp"
+                app:boxCornerRadiusBottomStart="20dp"
+                app:boxCornerRadiusBottomEnd="20dp"
                 app:boxStrokeColor="#CBD5E1"
                 app:boxStrokeWidthFocused="2dp"
-                app:endIconMode="password_toggle"
-                app:endIconTint="#64748B"
                 app:startIconDrawable="@drawable/ic_lock_outline"
-                app:startIconTint="#64748B">
+                app:startIconTint="#64748B"
+                app:endIconMode="password_toggle"
+                app:endIconTint="#64748B">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edtPassword"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Mật khẩu"
-                    android:imeOptions="actionDone"
                     android:inputType="textPassword"
+                    android:imeOptions="actionDone"
                     android:paddingVertical="16dp"
                     android:textColor="#0F172A"
                     android:textColorHint="#94A3B8"
-                    android:textSize="16sp" />
+                    android:textSize="16sp"/>
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- ERROR MESSAGE -->
+            <!-- ERROR -->
             <TextView
                 android:id="@+id/tvError"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:layout_marginBottom="5dp"
                 android:gravity="center"
-                android:paddingBottom="8dp"
-                android:text=""
                 android:textColor="#DC2626"
                 android:textSize="14sp"
                 android:visibility="gone"/>
 
-            <!-- SPACE -->
             <View
                 android:layout_width="match_parent"
-                android:layout_height="19dp" />
+                android:layout_height="18dp"/>
 
-            <!-- Register BUTTON -->
+            <!-- REGISTER BUTTON -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnRegister"
                 android:layout_width="match_parent"
@@ -218,7 +224,7 @@
                 app:backgroundTint="@null"
                 app:elevation="4dp"/>
 
-            <!-- REGISTER -->
+            <!-- LOGIN LINK -->
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -234,18 +240,16 @@
                     android:textColor="#64748B"/>
 
                 <TextView
-                    android:id="@+id/tvRegister"
+                    android:id="@+id/tvLogin"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Đăng nhập"
                     android:textSize="14sp"
                     android:textStyle="bold"
-                    android:textColor="#0EA5E9"
+                    android:textColor="#0284C7"
                     android:padding="6dp"
                     android:foreground="?attr/selectableItemBackgroundBorderless"/>
             </LinearLayout>
-
         </LinearLayout>
     </androidx.cardview.widget.CardView>
-
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,6 +1,9 @@
 package com.example.todoapp.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -12,15 +15,21 @@ import com.example.todoapp.R;
 
 public class ChangePasswordActivity extends AppCompatActivity {
 
+    ImageView btnBack;
+    TextView txtTitle;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_change_password);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
+
+        // ========================== Ánh xạ View ========================
+        btnBack = findViewById(R.id.btnBack);
+        txtTitle = findViewById(R.id.txtTitle);
+
+
+        btnBack.setOnClickListener(v -> {
+            finish();
+            startActivity(new Intent(this, Settings.class));
         });
     }
 }

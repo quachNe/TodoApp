@@ -1,14 +1,17 @@
 package com.example.todoapp.activities;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.todoapp.R;
@@ -28,7 +31,7 @@ import retrofit2.Response;
 public class RegisterActivity extends AppCompatActivity {
 
     // UI
-    TextView tvRegister, tvError;
+    TextView tvLogin, tvError;
     TextInputEditText edtUsername, edtPassword, edtFullname;
     TextInputLayout tilUsername, tilPassword;
     MaterialButton btnRegister;
@@ -42,7 +45,7 @@ public class RegisterActivity extends AppCompatActivity {
         setContentView(R.layout.activity_register);
 
         // Bind view
-        tvRegister = findViewById(R.id.tvRegister);
+        tvLogin = findViewById(R.id.tvLogin);
         tvError = findViewById(R.id.tvError);
 
         edtUsername = findViewById(R.id.edtUsername);
@@ -60,7 +63,7 @@ public class RegisterActivity extends AppCompatActivity {
         rbOther = findViewById(R.id.rbOther);
 
         // Quay về Login
-        tvRegister.setOnClickListener(v ->
+        tvLogin.setOnClickListener(v ->
                 startActivity(new Intent(this, LoginActivity.class))
         );
 
@@ -178,15 +181,22 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void showSuccessDialog() {
-        new MaterialAlertDialogBuilder(this)
-//                .setIcon(R.drawable.ic_check_circle)
-                .setTitle("Đăng ký thành công 🎉")
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle("Đăng ký thành công")
                 .setMessage("Tài khoản của bạn đã được tạo.\nVui lòng đăng nhập để tiếp tục.")
-                .setCancelable(false)
-                .setPositiveButton("Đăng nhập", (dialog, which) -> {
-                    dialog.dismiss();
-                    finish(); // quay về LoginActivity
+                .setPositiveButton("Đăng nhập", (d, which) -> {
+                    d.dismiss();
+                    finish();
                 })
-                .show();
+                .setCancelable(false)
+                .create();
+
+        dialog.show();
+
+        // đổi màu nút
+        Button positiveBtn = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+        positiveBtn.setTextColor(Color.BLACK);
     }
+
+
 }

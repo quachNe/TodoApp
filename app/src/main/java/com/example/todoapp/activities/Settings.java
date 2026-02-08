@@ -33,6 +33,14 @@ public class Settings extends AppCompatActivity {
             startActivity(new Intent(this, MainActivity.class));
         });
 
+        btnChangePass.setOnClickListener(v -> {
+            startActivity(new Intent(this, ChangePasswordActivity.class));
+        });
+
+        btnProfile.setOnClickListener(v -> {
+            startActivity(new Intent(this, ProfileActivity.class));
+        });
+
         btnLogout.setOnClickListener(v -> {
             SessionManager sessionManager = new SessionManager(this);
             sessionManager.logout();

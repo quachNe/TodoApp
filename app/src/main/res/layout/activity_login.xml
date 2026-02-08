@@ -29,30 +29,30 @@
             android:paddingTop="32dp"
             android:paddingBottom="28dp">
 
-            <!-- LOGO -->
-            <ImageView
+            <!-- TITLE -->
+            <TextView
                 android:id="@+id/ivLogo"
-                android:layout_width="72dp"
-                android:layout_height="72dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginBottom="28dp"
-                android:src="@drawable/todo_app"
-                android:scaleType="fitCenter"
-                android:contentDescription="App Logo"/>
+                android:text="Đăng Nhập"
+                android:textSize="28sp"
+                android:textStyle="bold"
+                android:textColor="#0284C7"
+                android:letterSpacing="0.03"/>
 
             <!-- USERNAME -->
-
-            <!-- PASSWORD -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilUsername"
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:boxBackgroundColor="#F8FAFC"
-                app:boxCornerRadiusBottomEnd="20dp"
-                app:boxCornerRadiusBottomStart="20dp"
-                app:boxCornerRadiusTopEnd="20dp"
                 app:boxCornerRadiusTopStart="20dp"
+                app:boxCornerRadiusTopEnd="20dp"
+                app:boxCornerRadiusBottomStart="20dp"
+                app:boxCornerRadiusBottomEnd="20dp"
                 app:boxStrokeColor="#CBD5E1"
                 app:boxStrokeWidthFocused="2dp"
                 app:startIconDrawable="@drawable/ic_person_outline"
@@ -64,13 +64,14 @@
                     android:layout_height="wrap_content"
                     android:hint="Tên đăng nhập"
                     android:imeOptions="actionNext"
-                    android:paddingVertical="16dp"
                     android:singleLine="true"
+                    android:paddingVertical="16dp"
+                    android:textSize="16sp"
                     android:textColor="#0F172A"
-                    android:textColorHint="#94A3B8"
-                    android:textSize="16sp" />
+                    android:textColorHint="#94A3B8"/>
             </com.google.android.material.textfield.TextInputLayout>
 
+            <!-- PASSWORD -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilPassword"
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
@@ -94,12 +95,12 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Mật khẩu"
-                    android:imeOptions="actionDone"
                     android:inputType="textPassword"
+                    android:imeOptions="actionDone"
                     android:paddingVertical="16dp"
+                    android:textSize="16sp"
                     android:textColor="#0F172A"
-                    android:textColorHint="#94A3B8"
-                    android:textSize="16sp" />
+                    android:textColorHint="#94A3B8"/>
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- ERROR MESSAGE -->
@@ -107,34 +108,31 @@
                 android:id="@+id/tvError"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text=""
-                android:textColor="#DC2626"
-                android:textSize="14sp"
+                android:layout_marginTop="8dp"
                 android:gravity="center"
-                android:visibility="gone"
-                android:paddingBottom="8dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="5dp"/>
-
-            <!-- LOGIN BUTTON -->
+                android:textSize="14sp"
+                android:textColor="#EF4444"
+                android:visibility="gone"/>
 
             <View
                 android:layout_width="match_parent"
-                android:layout_height="19dp" />
+                android:layout_height="20dp"/>
 
+            <!-- LOGIN BUTTON -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnLogin"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
-                android:background="@drawable/btn_gradient_ocean"
                 android:text="Đăng nhập"
                 android:textAllCaps="false"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 android:textColor="#FFFFFF"
+                android:background="@drawable/btn_gradient_ocean"
                 app:cornerRadius="24dp"
                 app:backgroundTint="@null"
-                app:elevation="4dp"/>
+                app:elevation="4dp"
+                android:stateListAnimator="@null"/>
 
             <!-- REGISTER -->
             <LinearLayout
@@ -142,7 +140,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:orientation="horizontal"
-                android:layout_marginTop="10dp">
+                android:layout_marginTop="12dp">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -155,10 +153,10 @@
                     android:id="@+id/tvRegister"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Đăng ký"
+                    android:text="Đăng ký ngay"
                     android:textSize="14sp"
                     android:textStyle="bold"
-                    android:textColor="#0EA5E9"
+                    android:textColor="#0284C7"
                     android:padding="6dp"
                     android:foreground="?attr/selectableItemBackgroundBorderless"/>
             </LinearLayout>
