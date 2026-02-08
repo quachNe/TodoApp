@@ -21,11 +21,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.example.todoapp.R;
 import com.example.todoapp.api.ApiClient;
 import com.example.todoapp.api.CategoryApi;
+import com.example.todoapp.api.UserApi;
+import com.example.todoapp.models.User;
 import com.example.todoapp.requests.CategoryRequest;
 import com.example.todoapp.responses.CategoryResponse;
+import com.example.todoapp.responses.UserResponse;
 import com.example.todoapp.utils.SessionManager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
@@ -92,7 +96,7 @@ public class HomeActivity extends AppCompatActivity {
         session = new SessionManager(this);
         categoryApi = ApiClient.getClient(this).create(CategoryApi.class);
 
-        txtUserName.setText(session.getFullName());
+//        txtUserName.setText(session.getFullName());
         loadUser();
         loadCategories();
 
@@ -117,18 +121,48 @@ public class HomeActivity extends AppCompatActivity {
         setupSearchDebounce();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadUser();
+    }
+
+
     /* ================= USER ================= */
     private void loadUser() {
-        String avatarUrl = session.getAvatarUrl();
-        if (avatarUrl != null && !avatarUrl.isEmpty()) {
-            Glide.with(this)
-                    .load(avatarUrl)
-                    .placeholder(R.drawable.ic_avatar)
-                    .circleCrop()
-                    .into(imgAvatar);
-        } else {
-            imgAvatar.setImageResource(R.drawable.ic_avatar);
-        }
+        Glide.with(this).clear(imgAvatar);
+
+        UserApi api = ApiClient.getClient(this).create(UserApi.class);
+
+        api.getProfile().enqueue(new Callback<UserResponse>() {
+            @Override
+            public void onResponse(Call<UserResponse> call,
+                                   Response<UserResponse> response) {
+
+                if (response.isSuccessful()
+                        && response.body() != null
+                        && response.body().getUser() != null) {
+
+                    User user = response.body().getUser();
+
+                    String avatarUrl = user.getAvatar();
+
+                    txtUserName.setText(user.getFullName());
+
+                    Glide.with(HomeActivity.this)
+                            .load(avatarUrl)
+                            .placeholder(R.drawable.ic_avatar)
+                            .error(R.drawable.ic_avatar)
+                            .circleCrop()
+                            .into(imgAvatar);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<UserResponse> call, Throwable t) {
+                imgAvatar.setImageResource(R.drawable.ic_avatar);
+            }
+        });
     }
 
     /* ================= SEARCH (300ms) ================= */

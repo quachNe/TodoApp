@@ -110,7 +110,7 @@ public class LoginActivity extends AppCompatActivity {
                 if (res.isSuccess()) {
                     SessionManager session = new SessionManager(LoginActivity.this);
 
-                    session.saveUser(res.getAccessToken(), res.getUser());
+                    session.saveSession(res.getAccessToken(), res.getUser().getId());
 
                     startActivity(new Intent(LoginActivity.this, HomeActivity.class));
                     finish();
