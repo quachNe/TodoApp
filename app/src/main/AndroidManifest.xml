@@ -15,6 +15,15 @@
         android:theme="@style/Theme.TodoApp"
         android:usesCleartextTraffic="true">
         <activity
+            android:name=".activities.ResetPasswordActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.VerifyCodeActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.ForgotPasswordActivity"
+            android:exported="false" />
+        <activity
             android:name=".activities.Settings"
             android:exported="false" />
         <activity

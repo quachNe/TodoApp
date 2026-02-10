@@ -25,7 +25,7 @@ import retrofit2.Response;
 
 public class LoginActivity extends AppCompatActivity {
 
-    TextView tvRegister, tvError;
+    TextView tvRegister, tvError, tvForgotPassword;
     TextInputEditText edtUsername, edtPassword;
     TextInputLayout tilUsername, tilPassword;
     MaterialButton btnLogin;
@@ -42,10 +42,21 @@ public class LoginActivity extends AppCompatActivity {
         tilUsername = findViewById(R.id.tilUsername);
         tilPassword = findViewById(R.id.tilPassword);
         btnLogin = findViewById(R.id.btnLogin);
+        tvForgotPassword = findViewById(R.id.tvForgotPassword);
 
         tvRegister.setOnClickListener(v ->
                 startActivity(new Intent(this, RegisterActivity.class))
         );
+
+        tvForgotPassword.setOnClickListener(v -> {
+            if (edtUsername.getText().isEmpty()) {
+                edtUsername.requestFocus();
+                return;
+            }
+            Intent intent = new Intent(this, ForgotPasswordActivity.class);
+            intent.putExtra("username", edtUsername.getText().toString());
+            startActivity(intent);
+        });
 
         btnLogin.setOnClickListener(v -> login());
     }
@@ -88,13 +99,13 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
 
-                // ❌ Sai tài khoản / mật khẩu
+                // Sai tài khoản / mật khẩu
                 if (response.code() == 401) {
                     showError("Sai tài khoản hoặc mật khẩu");
                     return;
                 }
 
-                // ❌ Lỗi khác (500, 404...)
+                // Lỗi khác (500, 404...)
                 if (!response.isSuccessful()) {
                     showError("Lỗi server (" + response.code() + ")");
                     return;
