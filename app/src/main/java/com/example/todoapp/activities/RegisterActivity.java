@@ -134,9 +134,6 @@ public class RegisterActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<RegisterResponse> call,
                                    Response<RegisterResponse> response) {
-
-                Log.d("REGISTER", "HTTP CODE: " + response.code());
-
                 // Username đã tồn tại (BE trả 400)
                 if (response.code() == 400) {
                     showError("Tên đăng nhập đã tồn tại");
@@ -165,7 +162,6 @@ public class RegisterActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<RegisterResponse> call, Throwable t) {
-                Log.e("REGISTER", "CONNECT ERROR", t);
                 showError("Không kết nối được server");
             }
         });

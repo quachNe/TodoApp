@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
+import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -40,14 +41,17 @@ public class ProfileActivity extends AppCompatActivity {
 
     private static final int PICK_IMAGE_REQUEST = 1001;
 
-    private ImageView btnBack, imgAvatar, btnProfile;
+    private ImageView btnBack, imgAvatar, btnProfile, btnGender;
     private TextView txtUsernameValue, txtGenderValue, btnEditAvatar, txtFullname;
 
-    private View cardEditName;
+    private View cardEditName, cardEditGender;
     private View overlay;
     private TextInputEditText edtEditFullname;
 
-    private Button btnCancelEditName, btnSaveEditName;
+    private Button btnCancelEditName, btnSaveEditName, btnSaveEditGender, btnCancelEditGender;
+
+    private RadioButton rbMale, rbFemale, rbOther;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,6 +69,13 @@ public class ProfileActivity extends AppCompatActivity {
         overlay = findViewById(R.id.overlay);
         btnCancelEditName = findViewById(R.id.btnCancelEditName);
         btnSaveEditName = findViewById(R.id.btnSaveEditName);
+        btnGender = findViewById(R.id.btnGender);
+        rbMale = findViewById(R.id.rbMale);
+        rbFemale = findViewById(R.id.rbFemale);
+        rbOther = findViewById(R.id.rbOther);
+        cardEditGender = findViewById(R.id.cardEditGender);
+        btnSaveEditGender = findViewById(R.id.btnSaveEditGender);
+        btnCancelEditGender = findViewById(R.id.btnCancelEditGender);
 
 
         // ============================ Innit ======================
@@ -72,19 +83,40 @@ public class ProfileActivity extends AppCompatActivity {
 
         // ============================ Sự kiện ======================
         btnBack.setOnClickListener(v -> finish());
+
         btnEditAvatar.setOnClickListener(this::showAvatarPopup);
+
+        btnGender.setOnClickListener(v -> {
+            if (txtGenderValue.getText().equals("Nam")){
+                rbMale.setChecked(true);
+            } else if (txtGenderValue.getText().equals("Nữ")){
+                rbFemale.setChecked(true);
+            } else {
+                rbOther.setChecked(true);
+            }
+            cardEditGender.setVisibility(View.VISIBLE);
+            overlay.setVisibility(View.VISIBLE);
+        });
+
+        btnCancelEditName.setOnClickListener(v -> {
+            cardEditName.setVisibility(View.GONE);
+            overlay.setVisibility(View.GONE);
+        });
+
+        btnSaveEditName.setOnClickListener(v -> handleSaveFullName());
+
+        btnSaveEditGender.setOnClickListener(v -> handleSaveGender());
+
         btnProfile.setOnClickListener(v -> {
             edtEditFullname.setText(txtFullname.getText().toString());
             cardEditName.setVisibility(View.VISIBLE);
             overlay.setVisibility(View.VISIBLE);
         });
-        btnCancelEditName.setOnClickListener(v -> {
-            cardEditName.setVisibility(View.GONE);
+
+        btnCancelEditGender.setOnClickListener(v -> {
+            cardEditGender.setVisibility(View.GONE);
             overlay.setVisibility(View.GONE);
         });
-        btnSaveEditName.setOnClickListener(v -> handleSubmit());
-
-
     }
 
     private void loadUser() {
@@ -254,26 +286,23 @@ public class ProfileActivity extends AppCompatActivity {
         }
     }
 
-    private void handleSubmit() {
-        String fullName = edtEditFullname.getText().toString().trim();
+    private void updateProfile(
+            @Nullable String fullName,
+            @Nullable String gender
+    ) {
+        // full_name
+        RequestBody fullNameBody = fullName != null
+                ? RequestBody.create(fullName, MediaType.parse("text/plain"))
+                : null;
 
-        if (fullName.isEmpty()) {
-            edtEditFullname.setError("Không được để trống");
-            edtEditFullname.requestFocus();
-            return;
-        }
+        // gender
+        RequestBody genderBody = gender != null
+                ? RequestBody.create(gender, MediaType.parse("text/plain"))
+                : null;
 
-        // 1️⃣ Tạo RequestBody cho full_name
-        RequestBody fullNameBody =
-                RequestBody.create(fullName, MediaType.parse("text/plain"));
-
-        // 2️⃣ gender (nếu chưa đổi thì gửi giá trị hiện tại)
-        RequestBody genderBody = null;
-
-        // 3️⃣ avatar (KHÔNG đổi avatar → gửi null)
+        // avatar (chưa đổi)
         MultipartBody.Part avatarPart = null;
 
-        // 4️⃣ Gọi API
         UserApi api = ApiClient.getClient(this).create(UserApi.class);
         Call<UserResponse> call = api.updateProfile(
                 fullNameBody,
@@ -287,10 +316,19 @@ public class ProfileActivity extends AppCompatActivity {
                 if (response.isSuccessful() && response.body() != null) {
 
                     cardEditName.setVisibility(View.GONE);
+                    cardEditGender.setVisibility(View.GONE);
                     overlay.setVisibility(View.GONE);
-                    txtFullname.setText(fullName);
+
+                    if (fullName != null) {
+                        txtFullname.setText(fullName);
+                    }
+
+                    if (gender != null) {
+                        txtGenderValue.setText(gender);
+                    }
+
                     Toast.makeText(ProfileActivity.this,
-                            "Cập nhật thông tin thành công",
+                            "Cập nhật thành công",
                             Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(ProfileActivity.this,
@@ -307,5 +345,29 @@ public class ProfileActivity extends AppCompatActivity {
             }
         });
     }
+
+    private void handleSaveFullName() {
+        String fullName = edtEditFullname.getText().toString().trim();
+
+        if (fullName.isEmpty()) {
+            edtEditFullname.requestFocus();
+            return;
+        }
+
+        updateProfile(fullName, null); // ✅ chỉ gửi full_name
+    }
+
+    private void handleSaveGender() {
+        String gender = "Nam"; // default
+
+        if (rbFemale.isChecked()) {
+            gender = "Nữ";
+        } else if (rbOther.isChecked()) {
+            gender = "Khác";
+        }
+
+        updateProfile(null, gender); // ✅ chỉ gửi gender
+    }
+
 
 }
