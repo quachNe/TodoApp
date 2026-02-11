@@ -337,11 +337,9 @@
         android:layout_height="wrap_content"
         android:src="@drawable/ic_add"
         android:layout_margin="24dp"
-
         app:backgroundTint="#FFFFFF"
         app:tint="#6366F1"
         app:elevation="10dp"
-
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 

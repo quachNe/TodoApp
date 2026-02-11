@@ -16,21 +16,21 @@ import retrofit2.http.Path;
 
 public interface CategoryApi {
 
-    @GET("api/categories/user")
-    Call<List<CategoryResponse>> getMyCategories();
+    @GET("categories")
+    Call<List<CategoryResponse>> getCategories();
 
-    @POST("api/categories")
+    @POST("categories")
     Call<CategoryResponse> createCategory(
             @Body CategoryRequest request
     );
 
-    @PUT("api/categories/{id}")
+    @PUT("categories/{id}")
     Call<CategoryResponse> updateCategory(
             @Path("id") int categoryId,
             @Body CategoryRequest request
     );
 
-    @DELETE("api/categories/{id}")
+    @DELETE("categories/{id}")
     Call<Void> deleteCategory(
             @Path("id") int categoryId
     );

@@ -84,7 +84,7 @@ public class ResetPasswordActivity extends AppCompatActivity {
         ResetPassWordRequest request =
                 new ResetPassWordRequest(username, txtNewPassword);
 
-        authApi.ResetPassWord(request)
+        authApi.resetPassWord(request)
                 .enqueue(new Callback<ResetPassWordResponse>() {
 
                     @Override

@@ -3,28 +3,19 @@ package com.example.todoapp.activities;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 import com.example.todoapp.R;
 import com.example.todoapp.api.ApiClient;
-import com.example.todoapp.api.AuthApi;
 import com.example.todoapp.api.UserApi;
-import com.example.todoapp.requests.ChangePassWordRequest;
-import com.example.todoapp.requests.LoginRequest;
-import com.example.todoapp.responses.ChangePassWordResponse;
-import com.example.todoapp.responses.LoginResponse;
+import com.example.todoapp.requests.ChangePasswordRequest;
+import com.example.todoapp.responses.ChangePasswordResponse;
 import com.example.todoapp.utils.SessionManager;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
@@ -108,13 +99,13 @@ public class ChangePasswordActivity extends AppCompatActivity {
 
         // ===== CALL API =====
         UserApi userApi = ApiClient.getClient(this).create(UserApi.class);
-        ChangePassWordRequest request =
-                new ChangePassWordRequest(oldPassword, newPassword);
+        ChangePasswordRequest request =
+                new ChangePasswordRequest(oldPassword, newPassword);
 
-        userApi.changePass(request).enqueue(new Callback<ChangePassWordResponse>() {
+        userApi.changePass(request).enqueue(new Callback<ChangePasswordResponse>() {
             @Override
-            public void onResponse(Call<ChangePassWordResponse> call,
-                                   Response<ChangePassWordResponse> response) {
+            public void onResponse(Call<ChangePasswordResponse> call,
+                                   Response<ChangePasswordResponse> response) {
 
                 if (response.code() == 401) {
                     showError("Mật khẩu cũ không đúng");
@@ -126,7 +117,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
                     return;
                 }
 
-                ChangePassWordResponse res = response.body();
+                ChangePasswordResponse res = response.body();
                 if (res == null) {
                     showError("Dữ liệu phản hồi không hợp lệ");
                     return;
@@ -140,7 +131,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<ChangePassWordResponse> call, Throwable t) {
+            public void onFailure(Call<ChangePasswordResponse> call, Throwable t) {
                 showError("Không kết nối được server");
             }
         });

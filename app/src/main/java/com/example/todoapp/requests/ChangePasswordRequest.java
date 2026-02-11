@@ -2,7 +2,7 @@ package com.example.todoapp.requests;
 
 import com.google.gson.annotations.SerializedName;
 
-public class ChangePassWordRequest {
+public class ChangePasswordRequest {
     @SerializedName("old_password")
     private String oldPassWord;
 
@@ -17,7 +17,7 @@ public class ChangePassWordRequest {
         return oldPassWord;
     }
 
-    public ChangePassWordRequest(String oldPassWord, String newPassWord) {
+    public ChangePasswordRequest(String oldPassWord, String newPassWord) {
         this.oldPassWord = oldPassWord;
         this.newPassWord = newPassWord;
     }

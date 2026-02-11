@@ -240,7 +240,7 @@ public class HomeActivity extends AppCompatActivity {
             return;
         }
 
-        categoryApi.getMyCategories().enqueue(new Callback<List<CategoryResponse>>() {
+        categoryApi.getCategories().enqueue(new Callback<List<CategoryResponse>>() {
             @Override
             public void onResponse(Call<List<CategoryResponse>> call,
                                    Response<List<CategoryResponse>> response) {
@@ -290,7 +290,10 @@ public class HomeActivity extends AppCompatActivity {
             ImageView btnMore = item.findViewById(R.id.btnMenu);
 
             cardView.setOnClickListener(v -> {
-                startActivity(new Intent(this, CategoryDetailActivity.class));
+                Intent intent = new Intent(this, CategoryDetailActivity.class);
+                intent.putExtra("categoryId", category.getId());
+                intent.putExtra("categoryName", category.getName());
+                startActivity(intent);
             });
             btnMore.setOnClickListener(v -> {
                 showCategoryMenu(item, category.getId());

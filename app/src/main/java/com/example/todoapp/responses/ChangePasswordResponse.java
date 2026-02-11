@@ -1,8 +1,6 @@
 package com.example.todoapp.responses;
 
-import com.google.gson.annotations.SerializedName;
-
-public class ChangePassWordResponse {
+public class ChangePasswordResponse {
     private boolean success;
     private String message;
 
