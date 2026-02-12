@@ -1,33 +1,23 @@
 package com.example.todoapp.api;
 
 import com.example.todoapp.models.Task;
+import com.example.todoapp.requests.TaskRequest;
+import com.example.todoapp.responses.TaskResponse;
+
 import java.util.List;
 import retrofit2.Call;
 import retrofit2.http.*;
 
 public interface TaskApi {
 
-    @GET("tasks")
-    Call<List<Task>> getTasks(
-            @Header("Authorization") String token
+    @GET("categories/{categoryId}/tasks")
+    Call<TaskResponse> getTasksByCategory(@Path("categoryId") int categoryId);
+    @POST("categories/{categoryId}/tasks")
+    Call<TaskResponse> createTask(
+            @Path("categoryId") int categoryId,
+            @Body TaskRequest request
     );
+    @DELETE("tasks/{taskId}")
+    Call<TaskResponse> deleteTask(@Path("taskId") int taskId);
 
-    @POST("tasks")
-    Call<Task> createTask(
-            @Header("Authorization") String token,
-            @Body Task task
-    );
-
-    @PUT("tasks/{id}")
-    Call<Task> updateTask(
-            @Header("Authorization") String token,
-            @Path("id") int id,
-            @Body Task task
-    );
-
-    @DELETE("tasks/{id}")
-    Call<Void> deleteTask(
-            @Header("Authorization") String token,
-            @Path("id") int id
-    );
 }
