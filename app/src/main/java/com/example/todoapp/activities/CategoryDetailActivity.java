@@ -5,11 +5,14 @@ import android.app.TimePickerDialog;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -23,9 +26,7 @@ import com.example.todoapp.R;
 import com.example.todoapp.api.ApiClient;
 import com.example.todoapp.api.TaskApi;
 import com.example.todoapp.models.Task;
-import com.example.todoapp.requests.CategoryRequest;
 import com.example.todoapp.requests.TaskRequest;
-import com.example.todoapp.responses.CategoryResponse;
 import com.example.todoapp.responses.TaskResponse;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -42,13 +43,16 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class CategoryDetailActivity extends AppCompatActivity {
+    private List<Task> allTasks;
+    private String currentFilter = "TOTAL"; // TOTAL | TODAY | COMPLETED | PENDING
+    private String searchKeyword = "";
 
     private ImageView btnBack;
     private LinearLayout layoutTaskContainer, layoutEmpty;
     private View openedItem = null;
 
     private View overlay;
-    private TextView categoryTitle, tvTotal, tvToday, tvCompleted, tvPending, txtPickDate, txtPickTime,txtTaskError;
+    private TextView edtSearch, categoryTitle, tvTotal, tvToday, tvCompleted, tvPending, txtPickDate, txtPickTime,txtTaskError;
 
     private MaterialCardView cardTotal, cardToday, cardCompleted, cardPending;
     private CardView cardModal;
@@ -58,6 +62,9 @@ public class CategoryDetailActivity extends AppCompatActivity {
     private int categoryId;
     private String selectedDate = null;
     private String selectedTime = null;
+
+    private boolean isEdit = false;
+    private int editingTaskId = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,6 +95,7 @@ public class CategoryDetailActivity extends AppCompatActivity {
         btnSaveTask = findViewById(R.id.btnSaveTask);
         edtTaskName = findViewById(R.id.edtTaskName);
         txtTaskError = findViewById(R.id.txtTaskError);
+        edtSearch = findViewById(R.id.edtSearch);
 
         // ============================ Lấy dữ liệu ============================
         categoryId = getIntent().getIntExtra("categoryId", -1);
@@ -97,32 +105,51 @@ public class CategoryDetailActivity extends AppCompatActivity {
 
         // ============================ Xử lý sự kiện ============================
         cardTotal.setOnClickListener(v -> {
+            currentFilter = "TOTAL";
+            applyFilter();
             setActive(cardTotal, tvTotal);
             setNoActive(cardToday, tvToday);
             setNoActive(cardCompleted, tvCompleted);
             setNoActive(cardPending, tvPending);
         });
 
-        cardToday.setOnClickListener(v ->{
+        cardToday.setOnClickListener(v -> {
+            currentFilter = "TODAY";
+            applyFilter();
             setActive(cardToday, tvToday);
             setNoActive(cardTotal, tvTotal);
             setNoActive(cardCompleted, tvCompleted);
             setNoActive(cardPending, tvPending);
         });
 
-        cardCompleted.setOnClickListener(v ->{
+        cardCompleted.setOnClickListener(v -> {
+            currentFilter = "COMPLETED";
+            applyFilter();
             setActive(cardCompleted, tvCompleted);
             setNoActive(cardTotal, tvTotal);
             setNoActive(cardToday, tvToday);
             setNoActive(cardPending, tvPending);
         });
 
-        cardPending.setOnClickListener(v ->{
+        cardPending.setOnClickListener(v -> {
+            currentFilter = "PENDING";
+            applyFilter();
             setActive(cardPending, tvPending);
             setNoActive(cardTotal, tvTotal);
             setNoActive(cardToday, tvToday);
             setNoActive(cardCompleted, tvCompleted);
         });
+        edtSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void afterTextChanged(Editable s) {
+                searchKeyword = s.toString();
+                applyFilter();
+            }
+
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+        });
+
 
         btnAddTask.setOnClickListener(v -> {
                 cardModal.setVisibility(View.VISIBLE);
@@ -217,7 +244,8 @@ public class CategoryDetailActivity extends AppCompatActivity {
             TaskRequest request =
                     new TaskRequest(name, deadlineIso);
 
-            Call<TaskResponse> call = taskApi.createTask(categoryId, request);
+            Call<TaskResponse> call = isEdit ? taskApi.updateTask(editingTaskId, request):
+                    taskApi.createTask(categoryId, request);
 
             call.enqueue(new Callback<TaskResponse>() {
 
@@ -232,6 +260,9 @@ public class CategoryDetailActivity extends AppCompatActivity {
                     }
 
                     if (response.isSuccessful()) {
+                        isEdit = false;
+                        editingTaskId = -1;
+
                         resetForm();
                         loadTasksFromApi();
                     }
@@ -292,6 +323,9 @@ public class CategoryDetailActivity extends AppCompatActivity {
                 day
         );
 
+        datePickerDialog.getDatePicker()
+                .setMinDate(System.currentTimeMillis() - 1000);
+
         datePickerDialog.show();
     }
 
@@ -323,9 +357,7 @@ public class CategoryDetailActivity extends AppCompatActivity {
 
                 if (response.isSuccessful() && response.body() != null) {
 
-                    List<Task> tasks = response.body().getTasks();
-
-                    layoutTaskContainer.removeAllViews();
+                    allTasks = response.body().getTasks();
 
                     TaskResponse.Summary summary = response.body().getSummary();
                     tvTotal.setText("Tổng (" + summary.getTotal() + ")");
@@ -333,27 +365,13 @@ public class CategoryDetailActivity extends AppCompatActivity {
                     tvCompleted.setText("Đã hoàn thành (" + summary.getCompleted() + ")");
                     tvPending.setText("Chưa hoàn thành (" + summary.getPending() + ")");
 
-                    if (tasks == null || tasks.isEmpty()) {
-
-                        // 🔥 Hiển thị empty view
-                        layoutEmpty.setVisibility(View.VISIBLE);
-
-                    } else {
-
-                        // 🔥 Ẩn empty view
-                        layoutEmpty.setVisibility(View.GONE);
-
-                        for (Task task : tasks) {
-                            addTaskItem(task);
-                        }
-                    }
+                    applyFilter();
 
                 } else {
                     Toast.makeText(CategoryDetailActivity.this,
                             "Load thất bại", Toast.LENGTH_SHORT).show();
                 }
             }
-
 
             @Override
             public void onFailure(Call<TaskResponse> call, Throwable t) {
@@ -363,15 +381,130 @@ public class CategoryDetailActivity extends AppCompatActivity {
         });
     }
 
+    private void applyFilter() {
+
+        layoutTaskContainer.removeAllViews();
+
+        if (allTasks == null || allTasks.isEmpty()) {
+            layoutEmpty.setVisibility(View.VISIBLE);
+            return;
+        }
+
+        layoutEmpty.setVisibility(View.GONE);
+
+        Date now = new Date();
+
+        SimpleDateFormat isoFormat =
+                new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
+
+        SimpleDateFormat dateOnly =
+                new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+
+        for (Task task : allTasks) {
+
+            boolean show = false;
+
+            try {
+
+                Date deadline = null;
+
+                if (task.getDeadline() != null) {
+                    deadline = isoFormat.parse(task.getDeadline());
+                }
+
+                switch (currentFilter) {
+
+                    case "TOTAL":
+                        show = true;
+                        break;
+
+                    case "TODAY":
+                        if (deadline != null &&
+                                dateOnly.format(deadline)
+                                        .equals(dateOnly.format(now))) {
+                            show = true;
+                        }
+                        break;
+
+                    case "COMPLETED":
+                        show = task.isCompleted();
+                        break;
+
+                    case "PENDING":
+                        show = !task.isCompleted();
+                        break;
+                }
+
+                // SEARCH
+                if (!task.getTaskName()
+                        .toLowerCase()
+                        .contains(searchKeyword.toLowerCase())) {
+                    show = false;
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            if (show) {
+                addTaskItem(task);
+            }
+        }
+
+        if (layoutTaskContainer.getChildCount() == 0) {
+            layoutEmpty.setVisibility(View.VISIBLE);
+        }
+    }
 
     // ===============================
     // ADD TASK ITEM UI
     // ===============================
-    private void addTaskItem(Task task){
+    private boolean isTaskExpired(Task task) {
+        if (task.getDeadline() == null) return false;
 
+        try {
+            SimpleDateFormat isoFormat =
+                    new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
+
+            Date deadlineDate = isoFormat.parse(task.getDeadline());
+            Date now = new Date();
+
+            return deadlineDate.before(now);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    private void addTaskItem(Task task){
         LayoutInflater inflater = LayoutInflater.from(this);
         View itemView = inflater.inflate(R.layout.item_task, layoutTaskContainer, false);
         layoutTaskContainer.addView(itemView);
+        TextView tvTaskTime = itemView.findViewById(R.id.txtTaskTime);
+        if (task.getDeadline() != null && !task.getDeadline().isEmpty()) {
+
+            try {
+                SimpleDateFormat isoFormat =
+                        new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
+
+                Date date = isoFormat.parse(task.getDeadline());
+
+                SimpleDateFormat dateFormat =
+                        new SimpleDateFormat("HH:mm - dd/MM/yyyy", Locale.getDefault());
+
+                String formatted = dateFormat.format(date);
+
+                tvTaskTime.setText(formatted);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                tvTaskTime.setText("Không xác định");
+            }
+
+        } else {
+            tvTaskTime.setText("Không có deadline");
+        }
 
         View card = itemView.findViewById(R.id.cardContent);
         ImageView btnEdit = itemView.findViewById(R.id.btnEdit);
@@ -380,15 +513,69 @@ public class CategoryDetailActivity extends AppCompatActivity {
 
         tvTaskName.setText(task.getTaskName());
 
-        btnEdit.setOnClickListener(v ->
-                Toast.makeText(this, "Sửa: " + task.getTaskName(), Toast.LENGTH_SHORT).show()
-        );
+        btnEdit.setOnClickListener(v -> {
+            txtTaskError.setVisibility(View.GONE);
+            isEdit = true;
+            editingTaskId = task.getId();
+
+            cardModal.setVisibility(View.VISIBLE);
+            overlay.setVisibility(View.VISIBLE);
+
+            edtTaskName.setText(task.getTaskName());
+
+            if (task.getDeadline() != null) {
+
+                try {
+                    // Parse ISO string
+                    SimpleDateFormat isoFormat =
+                            new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
+
+                    Date date = isoFormat.parse(task.getDeadline());
+
+                    // Format date
+                    SimpleDateFormat dateFormat =
+                            new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+
+                    SimpleDateFormat timeFormat =
+                            new SimpleDateFormat("HH:mm", Locale.getDefault());
+
+                    String formattedDate = dateFormat.format(date);
+                    String formattedTime = timeFormat.format(date);
+
+                    txtPickDate.setText(formattedDate);
+                    txtPickTime.setText(formattedTime);
+
+                    selectedDate = formattedDate;
+                    selectedTime = formattedTime;
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
 
         btnDelete.setOnClickListener(v -> {
             deleteTask(task.getId(), itemView);
         });
-
         enableSwipe(card);
+        CheckBox cbCompleted = itemView.findViewById(R.id.cbCompleted);
+        if (isTaskExpired(task)) {
+
+            // Làm mờ card một chút
+            card.setAlpha(0.6f);
+
+            // Không cho tick
+            cbCompleted.setEnabled(false);
+
+            // Không cho chỉnh sửa
+            btnEdit.setVisibility(View.GONE);
+
+            // Không cho swipe (nếu swipe dùng cho edit)
+            card.setOnTouchListener((v, event) -> true);
+
+            // VẪN cho delete
+            btnDelete.setEnabled(true);
+        }
     }
 
     // ===============================
@@ -465,13 +652,18 @@ public class CategoryDetailActivity extends AppCompatActivity {
                     event.getAction() == MotionEvent.ACTION_CANCEL) {
 
                 if (card.getTranslationX() < OPEN_THRESHOLD) {
+
+                    if (openedItem != null && openedItem != card) {
+                        openedItem.animate().translationX(0).setDuration(200);
+                    }
+
                     card.animate().translationX(MAX_SWIPE).setDuration(200);
                     openedItem = card;
+
                 } else {
                     card.animate().translationX(0).setDuration(200);
                     openedItem = null;
                 }
-
                 v.getParent().requestDisallowInterceptTouchEvent(false);
             }
 

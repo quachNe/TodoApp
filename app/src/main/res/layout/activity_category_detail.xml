@@ -202,13 +202,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- SCROLL LIST -->
+        <!-- ================= SCROLL LIST ================= -->
         <ScrollView
             android:id="@+id/scrollView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
             android:fillViewport="true"
-            android:overScrollMode="never">
+            android:overScrollMode="never"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
 
             <LinearLayout
                 android:id="@+id/layoutTaskContainer"
@@ -217,14 +221,19 @@
                 android:orientation="vertical"/>
         </ScrollView>
 
-        <!-- EMPTY STATE -->
+
+        <!-- ================= EMPTY STATE ================= -->
         <LinearLayout
             android:id="@+id/layoutEmpty"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
             android:gravity="center"
             android:orientation="vertical"
-            android:visibility="gone">
+            android:visibility="gone"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
 
             <ImageView
                 android:layout_width="160dp"
@@ -252,8 +261,8 @@
 
         </LinearLayout>
 
-
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 
     <!-- ================= OVERLAY ================= -->
     <View
@@ -448,7 +457,7 @@
                         android:layout_width="0dp"
                         android:layout_height="48dp"
                         android:layout_weight="1"
-                        android:text="Thêm"
+                        android:text="Lưu"
                         android:textAllCaps="false"
                         android:textSize="15sp"
                         android:textStyle="bold"
