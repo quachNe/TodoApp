@@ -21,7 +21,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.example.todoapp.R;
 import com.example.todoapp.api.ApiClient;
 import com.example.todoapp.api.CategoryApi;
@@ -33,7 +32,6 @@ import com.example.todoapp.responses.UserResponse;
 import com.example.todoapp.utils.SessionManager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -115,7 +113,7 @@ public class HomeActivity extends AppCompatActivity {
         overlay.setOnClickListener(v -> closeModal());
 
         imgAvatar.setOnClickListener(v ->
-                startActivity(new Intent(this, Settings.class))
+                startActivity(new Intent(this, SettingsActivity.class))
         );
 
         setupSearchDebounce();

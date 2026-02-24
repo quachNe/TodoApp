@@ -4,11 +4,13 @@ import com.example.todoapp.requests.ForgotPasswordRequest;
 import com.example.todoapp.requests.LoginRequest;
 import com.example.todoapp.requests.RegisterRequest;
 import com.example.todoapp.requests.ResetPassWordRequest;
+import com.example.todoapp.requests.RestoreAccountRequest;
 import com.example.todoapp.requests.VerifyCodeRequest;
 import com.example.todoapp.responses.ForgotPasswordResponse;
 import com.example.todoapp.responses.LoginResponse;
 import com.example.todoapp.responses.RegisterResponse;
 import com.example.todoapp.responses.ResetPassWordResponse;
+import com.example.todoapp.responses.RestoreAccountResponse;
 import com.example.todoapp.responses.VerifyCodeResponse;
 
 import retrofit2.Call;
@@ -41,5 +43,10 @@ public interface AuthApi {
     @POST("auth/reset-password")
     Call<ResetPassWordResponse> resetPassWord(
             @Body ResetPassWordRequest request
+    );
+
+    @POST("auth/restore-account")
+    Call<RestoreAccountResponse> restoreAccount(
+            @Body RestoreAccountRequest request
     );
 }

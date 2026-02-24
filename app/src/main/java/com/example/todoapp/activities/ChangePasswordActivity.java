@@ -47,7 +47,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
         // ========================== Xự kiện========================
         btnBack.setOnClickListener(v -> {
             finish();
-            startActivity(new Intent(this, Settings.class));
+            startActivity(new Intent(this, SettingsActivity.class));
         });
 
         btnSaveChange.setOnClickListener(v -> {

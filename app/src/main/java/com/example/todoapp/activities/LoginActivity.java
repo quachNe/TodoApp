@@ -6,14 +6,18 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.todoapp.R;
 import com.example.todoapp.api.ApiClient;
 import com.example.todoapp.api.AuthApi;
+import com.example.todoapp.api.UserApi;
 import com.example.todoapp.models.User;
 import com.example.todoapp.requests.LoginRequest;
+import com.example.todoapp.requests.RestoreAccountRequest;
 import com.example.todoapp.responses.LoginResponse;
+import com.example.todoapp.responses.RestoreAccountResponse;
 import com.example.todoapp.utils.SessionManager;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
@@ -49,7 +53,7 @@ public class LoginActivity extends AppCompatActivity {
         );
 
         tvForgotPassword.setOnClickListener(v -> {
-            if (edtUsername.getText().isEmpty()) {
+            if (edtUsername.getText().toString().trim().isEmpty()) {
                 edtUsername.requestFocus();
                 return;
             }
@@ -105,6 +109,15 @@ public class LoginActivity extends AppCompatActivity {
                     return;
                 }
 
+                if (response.code() == 403) {
+
+                    LoginResponse res = response.body();
+
+                    showRestoreDialog(username);
+
+                    return;
+                }
+
                 // Lỗi khác (500, 404...)
                 if (!response.isSuccessful()) {
                     showError("Lỗi server (" + response.code() + ")");
@@ -149,5 +162,62 @@ public class LoginActivity extends AppCompatActivity {
     private void showError(String message) {
         tvError.setText(message);
         tvError.setVisibility(View.VISIBLE);
+    }
+
+    private void showRestoreDialog(String username) {
+
+        new AlertDialog.Builder(this)
+                .setTitle("Tài khoản đang được lên lịch chờ xóa")
+                .setMessage("Bạn có muốn khôi phục ngay không?")
+                .setCancelable(false)
+
+                // ✅ Khôi phục
+                .setPositiveButton("Khôi phục ngay", (dialog, which) -> {
+                    restoreAccount(username);
+                })
+
+                // ❌ Hủy
+                .setNegativeButton("Hủy", null)
+
+                .show();
+    }
+
+    private void restoreAccount(String username) {
+
+        AuthApi api = ApiClient
+                .getClient(this)
+                .create(AuthApi.class);
+
+        RestoreAccountRequest request =
+                new RestoreAccountRequest(username);
+
+        api.restoreAccount(request).enqueue(new Callback<RestoreAccountResponse>() {
+
+            @Override
+            public void onResponse(Call<RestoreAccountResponse> call,
+                                   Response<RestoreAccountResponse> response) {
+
+                if (response.isSuccessful()
+                        && response.body() != null
+                        && response.body().isSuccess()) {
+
+                    new AlertDialog.Builder(LoginActivity.this)
+                            .setTitle("Thành công")
+                            .setMessage("Tài khoản đã được khôi phục.\nVui lòng đăng nhập lại.")
+                            .setPositiveButton("OK", null)
+                            .show();
+
+                } else {
+
+                    showError("Khôi phục thất bại");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<RestoreAccountResponse> call, Throwable t) {
+
+                showError("Không kết nối được server");
+            }
+        });
     }
 }

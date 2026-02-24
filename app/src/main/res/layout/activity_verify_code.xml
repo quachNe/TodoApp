@@ -132,4 +132,24 @@
                 </LinearLayout>
         </LinearLayout>
     </androidx.cardview.widget.CardView>
+
+    <!-- 🔥 LOADING OVERLAY -->
+    <FrameLayout
+        android:id="@+id/loadingOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#66000000"
+        android:visibility="gone"
+        android:clickable="true"
+        android:focusable="true">
+
+        <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_gravity="center"
+            android:indeterminate="true"
+            app:indicatorSize="64dp"
+            app:indicatorColor="#0284C7"/>
+    </FrameLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

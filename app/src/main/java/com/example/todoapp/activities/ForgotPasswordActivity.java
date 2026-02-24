@@ -75,7 +75,14 @@ public class ForgotPasswordActivity extends AppCompatActivity {
                                            Response<ForgotPasswordResponse> response) {
 
                         btnSendCode.setEnabled(true);
-
+                        if (response.code() == 404) {
+                            Toast.makeText(
+                                    ForgotPasswordActivity.this,
+                                    "User không tồn tại trong hệ thống",
+                                    Toast.LENGTH_SHORT
+                            ).show();
+                            return;
+                        }
                         if (!response.isSuccessful()) {
                             Toast.makeText(
                                     ForgotPasswordActivity.this,
@@ -109,6 +116,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
                                     VerifyCodeActivity.class
                             );
                             intent.putExtra("username", username);
+                            intent.putExtra("email", email);
                             startActivity(intent);
                         } else {
                             Toast.makeText(
