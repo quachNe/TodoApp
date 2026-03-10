@@ -41,14 +41,14 @@ public class ProfileActivity extends AppCompatActivity {
 
     private static final int PICK_IMAGE_REQUEST = 1001;
 
-    private ImageView btnBack, imgAvatar, btnProfile, btnGender;
-    private TextView txtUsernameValue, txtGenderValue, btnEditAvatar, txtFullname;
+    private ImageView btnBack, imgAvatar, btnProfile, btnGender, btnEmail;
+    private TextView txtUsernameValue, txtGenderValue, btnEditAvatar, txtFullname, txtEmail, txtEmailError;
 
-    private View cardEditName, cardEditGender;
+    private View cardEditName, cardEditGender, cardEditEmail;
     private View overlay;
-    private TextInputEditText edtEditFullname;
+    private TextInputEditText edtEditFullname, edtEditEmail;
 
-    private Button btnCancelEditName, btnSaveEditName, btnSaveEditGender, btnCancelEditGender;
+    private Button btnCancelEditName, btnSaveEditName, btnSaveEditGender, btnCancelEditGender, btnCancelEditEmail, btnSaveEditEmail;
 
     private RadioButton rbMale, rbFemale, rbOther;
 
@@ -76,6 +76,13 @@ public class ProfileActivity extends AppCompatActivity {
         cardEditGender = findViewById(R.id.cardEditGender);
         btnSaveEditGender = findViewById(R.id.btnSaveEditGender);
         btnCancelEditGender = findViewById(R.id.btnCancelEditGender);
+        txtEmail = findViewById(R.id.txtEmail);
+        btnEmail = findViewById(R.id.btnEmail);
+        cardEditEmail = findViewById(R.id.cardEditEmail);
+        edtEditEmail = findViewById(R.id.edtEditEmail);
+        btnCancelEditEmail = findViewById(R.id.btnCancelEditEmail);
+        btnSaveEditEmail = findViewById(R.id.btnSaveEditEmail);
+        txtEmailError = findViewById(R.id.txtEmailError);
 
 
         // ============================ Innit ======================
@@ -107,6 +114,8 @@ public class ProfileActivity extends AppCompatActivity {
 
         btnSaveEditGender.setOnClickListener(v -> handleSaveGender());
 
+        btnSaveEditEmail.setOnClickListener(v -> handleSaveEmail());
+
         btnProfile.setOnClickListener(v -> {
             edtEditFullname.setText(txtFullname.getText().toString());
             cardEditName.setVisibility(View.VISIBLE);
@@ -115,6 +124,17 @@ public class ProfileActivity extends AppCompatActivity {
 
         btnCancelEditGender.setOnClickListener(v -> {
             cardEditGender.setVisibility(View.GONE);
+            overlay.setVisibility(View.GONE);
+        });
+
+        btnEmail.setOnClickListener(v -> {
+            edtEditEmail.setText(txtEmail.getText().toString());
+            cardEditEmail.setVisibility(View.VISIBLE);
+            overlay.setVisibility(View.VISIBLE);
+        });
+
+        btnCancelEditEmail.setOnClickListener(v -> {
+            cardEditEmail.setVisibility(View.GONE);
             overlay.setVisibility(View.GONE);
         });
     }
@@ -139,6 +159,7 @@ public class ProfileActivity extends AppCompatActivity {
 
                 // Text info
                 txtFullname.setText(user.getFullName());
+                txtEmail.setText(user.getEmail());
                 txtGenderValue.setText(user.getGender());
                 txtUsernameValue.setText(user.getUsername());
 
@@ -235,7 +256,7 @@ public class ProfileActivity extends AppCompatActivity {
         UserApi api =
                 ApiClient.getClient(this).create(UserApi.class);
 
-        api.updateProfile(null, null, avatarPart)
+        api.updateProfile(null, null, null, avatarPart)
                 .enqueue(new Callback<UserResponse>() {
 
                     @Override
@@ -243,7 +264,7 @@ public class ProfileActivity extends AppCompatActivity {
                                            Response<UserResponse> response) {
 
                         if (response.isSuccessful()) {
-                            // 🔥 reload lại user từ server
+                            // reload lại user từ server
                             loadUser();
                             Toast.makeText(ProfileActivity.this,
                                     "Cập nhật avatar thành công",
@@ -288,62 +309,67 @@ public class ProfileActivity extends AppCompatActivity {
 
     private void updateProfile(
             @Nullable String fullName,
-            @Nullable String gender
+            @Nullable String gender,
+            @Nullable String email
     ) {
-        // full_name
-        RequestBody fullNameBody = fullName != null
-                ? RequestBody.create(fullName, MediaType.parse("text/plain"))
-                : null;
 
-        // gender
-        RequestBody genderBody = gender != null
-                ? RequestBody.create(gender, MediaType.parse("text/plain"))
-                : null;
+        RequestBody fullNameBody = null;
+        RequestBody emailBody = null;
+        RequestBody genderBody = null;
 
-        // avatar (chưa đổi)
-        MultipartBody.Part avatarPart = null;
+        if (fullName != null) {
+            fullNameBody = RequestBody.create(fullName, MediaType.parse("text/plain"));
+        }
+
+        if (email != null) {
+            emailBody = RequestBody.create(email, MediaType.parse("text/plain"));
+        }
+
+        if (gender != null) {
+            genderBody = RequestBody.create(gender, MediaType.parse("text/plain"));
+        }
 
         UserApi api = ApiClient.getClient(this).create(UserApi.class);
-        Call<UserResponse> call = api.updateProfile(
-                fullNameBody,
-                genderBody,
-                avatarPart
-        );
 
-        call.enqueue(new Callback<UserResponse>() {
-            @Override
-            public void onResponse(Call<UserResponse> call, Response<UserResponse> response) {
-                if (response.isSuccessful() && response.body() != null) {
+        api.updateProfile(fullNameBody, emailBody, genderBody, null)
+                .enqueue(new Callback<UserResponse>() {
+                    @Override
+                    public void onResponse(Call<UserResponse> call, Response<UserResponse> response) {
 
-                    cardEditName.setVisibility(View.GONE);
-                    cardEditGender.setVisibility(View.GONE);
-                    overlay.setVisibility(View.GONE);
+                        if (response.isSuccessful()) {
 
-                    if (fullName != null) {
-                        txtFullname.setText(fullName);
+                            cardEditName.setVisibility(View.GONE);
+                            cardEditGender.setVisibility(View.GONE);
+                            cardEditEmail.setVisibility(View.GONE);
+                            overlay.setVisibility(View.GONE);
+                            txtEmailError.setVisibility(View.GONE);
+                            txtEmailError.setText("");
+                            if (fullName != null) txtFullname.setText(fullName);
+                            if (email != null) txtEmail.setText(email);
+                            if (gender != null) txtGenderValue.setText(gender);
+
+                            Toast.makeText(ProfileActivity.this,
+                                    "Cập nhật thành công",
+                                    Toast.LENGTH_SHORT).show();
+
+                        } else if (response.code() == 400) {
+                            txtEmailError.setVisibility(View.VISIBLE);
+                            txtEmailError.setText("Email đã tồn tại");
+                        } else {
+
+                            Toast.makeText(ProfileActivity.this,
+                                    "Cập nhật thất bại",
+                                    Toast.LENGTH_SHORT).show();
+                        }
                     }
 
-                    if (gender != null) {
-                        txtGenderValue.setText(gender);
+                    @Override
+                    public void onFailure(Call<UserResponse> call, Throwable t) {
+                        Toast.makeText(ProfileActivity.this,
+                                "Không kết nối được server",
+                                Toast.LENGTH_SHORT).show();
                     }
-
-                    Toast.makeText(ProfileActivity.this,
-                            "Cập nhật thành công",
-                            Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(ProfileActivity.this,
-                            "Cập nhật thất bại",
-                            Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<UserResponse> call, Throwable t) {
-                Toast.makeText(ProfileActivity.this,
-                        "Không kết nối được server",
-                        Toast.LENGTH_SHORT).show();
-            }
-        });
+                });
     }
 
     private void handleSaveFullName() {
@@ -354,11 +380,22 @@ public class ProfileActivity extends AppCompatActivity {
             return;
         }
 
-        updateProfile(fullName, null); // ✅ chỉ gửi full_name
+        updateProfile(fullName, null, null);
     }
 
+    private void handleSaveEmail(){
+        String email = edtEditEmail.getText().toString().trim();
+
+        if (email.isEmpty()) {
+            edtEditEmail.requestFocus();
+            return;
+        }
+
+        updateProfile(null, null, email);
+
+    }
     private void handleSaveGender() {
-        String gender = "Nam"; // default
+        String gender = "Nam";
 
         if (rbFemale.isChecked()) {
             gender = "Nữ";
@@ -366,8 +403,7 @@ public class ProfileActivity extends AppCompatActivity {
             gender = "Khác";
         }
 
-        updateProfile(null, gender); // ✅ chỉ gửi gender
+        updateProfile(null, gender, null);
     }
-
 
 }

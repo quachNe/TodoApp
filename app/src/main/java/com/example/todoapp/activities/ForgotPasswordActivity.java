@@ -27,7 +27,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
 
     private MaterialButton btnBack, btnSendCode;
 
-    private TextInputEditText edtEmail;
+    private TextInputEditText edtEmail, edtUsername;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,28 +37,32 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         btnBack = findViewById(R.id.btnBack);
         btnSendCode = findViewById(R.id.btnSendCode);
         edtEmail = findViewById(R.id.edtEmail);
-
-        String username = getIntent().getStringExtra("username");
-
+        edtUsername = findViewById(R.id.edtUsername);
 
         btnBack.setOnClickListener(v -> {
             finish();
         });
 
-
-        btnSendCode.setOnClickListener(v -> callForgotPasswordApi(username));
+        btnSendCode.setOnClickListener(v -> callForgotPasswordApi());
     }
 
 
-    private void callForgotPasswordApi(String username) {
+    private void callForgotPasswordApi() {
 
         String email = edtEmail.getText() != null
                 ? edtEmail.getText().toString().trim()
                 : "";
+        String username = edtUsername.getText() != null
+                ? edtUsername.getText().toString().trim()
+                : "";
 
         if (email.isEmpty()) {
             edtEmail.requestFocus();
-            edtEmail.setError("Vui lòng nhập email");
+            return;
+        }
+
+        if (username.isEmpty()) {
+            edtUsername.requestFocus();
             return;
         }
 
@@ -69,26 +73,34 @@ public class ForgotPasswordActivity extends AppCompatActivity {
 
         authApi.forgotPassword(request)
                 .enqueue(new Callback<ForgotPasswordResponse>() {
-
                     @Override
                     public void onResponse(Call<ForgotPasswordResponse> call,
                                            Response<ForgotPasswordResponse> response) {
 
                         btnSendCode.setEnabled(true);
-                        if (response.code() == 404) {
-                            Toast.makeText(
-                                    ForgotPasswordActivity.this,
-                                    "User không tồn tại trong hệ thống",
-                                    Toast.LENGTH_SHORT
-                            ).show();
-                            return;
-                        }
+
                         if (!response.isSuccessful()) {
-                            Toast.makeText(
-                                    ForgotPasswordActivity.this,
-                                    "Lỗi server (" + response.code() + ")",
-                                    Toast.LENGTH_SHORT
-                            ).show();
+
+                            try {
+                                String errorBody = response.errorBody().string();
+                                org.json.JSONObject json = new org.json.JSONObject(errorBody);
+
+                                String message = json.getString("message");
+
+                                Toast.makeText(
+                                        ForgotPasswordActivity.this,
+                                        message,
+                                        Toast.LENGTH_LONG
+                                ).show();
+
+                            } catch (Exception e) {
+                                Toast.makeText(
+                                        ForgotPasswordActivity.this,
+                                        "Lỗi server (" + response.code() + ")",
+                                        Toast.LENGTH_SHORT
+                                ).show();
+                            }
+
                             return;
                         }
 
@@ -104,20 +116,23 @@ public class ForgotPasswordActivity extends AppCompatActivity {
                         }
 
                         if (res.isSuccess()) {
+
                             Toast.makeText(
                                     ForgotPasswordActivity.this,
                                     res.getMessage(),
                                     Toast.LENGTH_LONG
                             ).show();
 
-                            // CHUYỂN SANG VERIFY CODE + GỬI DATA
                             Intent intent = new Intent(
                                     ForgotPasswordActivity.this,
                                     VerifyCodeActivity.class
                             );
+
                             intent.putExtra("username", username);
                             intent.putExtra("email", email);
+
                             startActivity(intent);
+
                         } else {
                             Toast.makeText(
                                     ForgotPasswordActivity.this,
@@ -136,7 +151,6 @@ public class ForgotPasswordActivity extends AppCompatActivity {
                                 Toast.LENGTH_SHORT
                         ).show();
                     }
-                }
-        );
+                });
     }
 }

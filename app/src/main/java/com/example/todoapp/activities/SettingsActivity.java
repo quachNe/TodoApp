@@ -54,8 +54,9 @@ public class SettingsActivity extends AppCompatActivity {
         btnLogout.setOnClickListener(v -> {
             SessionManager sessionManager = new SessionManager(this);
             sessionManager.logout();
-            startActivity(new Intent(this, LoginActivity.class));
-            finish();
+            Intent intent = new Intent(this, LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
         });
 
         btnDeleteAccount.setOnClickListener(v -> {
@@ -83,7 +84,7 @@ public class SettingsActivity extends AppCompatActivity {
                                             Toast.LENGTH_LONG
                                     ).show();
 
-                                    // 👉 Logout sau khi yêu cầu xóa
+                                    // Logout sau khi yêu cầu xóa
                                     SessionManager session =
                                             new SessionManager(SettingsActivity.this);
                                     session.logout();

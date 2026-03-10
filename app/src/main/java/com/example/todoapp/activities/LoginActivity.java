@@ -53,12 +53,12 @@ public class LoginActivity extends AppCompatActivity {
         );
 
         tvForgotPassword.setOnClickListener(v -> {
-            if (edtUsername.getText().toString().trim().isEmpty()) {
-                edtUsername.requestFocus();
-                return;
-            }
+//            if (edtUsername.getText().toString().trim().isEmpty()) {
+//                edtUsername.requestFocus();
+//                return;
+//            }
             Intent intent = new Intent(this, ForgotPasswordActivity.class);
-            intent.putExtra("username", edtUsername.getText().toString());
+//            intent.putExtra("username", edtUsername.getText().toString());
             startActivity(intent);
         });
 

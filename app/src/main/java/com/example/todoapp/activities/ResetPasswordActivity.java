@@ -26,7 +26,7 @@ import retrofit2.Response;
 public class ResetPasswordActivity extends AppCompatActivity {
     private TextInputEditText edtNewPassword, edtConfirmPassword;
     private MaterialButton btnBack, btnConfirm;
-
+    private TextView tvLength, tvUpper, tvNumber, tvSpecial;
     private TextView tvError;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +39,10 @@ public class ResetPasswordActivity extends AppCompatActivity {
         btnBack = findViewById(R.id.btnBack);
         btnConfirm = findViewById(R.id.btnConfirm);
         tvError = findViewById(R.id.tvError);
+        tvLength = findViewById(R.id.tvLength);
+        tvUpper = findViewById(R.id.tvUpper);
+        tvNumber = findViewById(R.id.tvNumber);
+        tvSpecial = findViewById(R.id.tvSpecial);
 
         btnBack.setOnClickListener(v -> {
             startActivity(new Intent(ResetPasswordActivity.this,
@@ -46,6 +50,7 @@ public class ResetPasswordActivity extends AppCompatActivity {
         });
 
         btnConfirm.setOnClickListener(v -> handleSubmit());
+        edtNewPassword.addTextChangedListener(passwordWatcher);
     }
 
     private void handleSubmit() {
@@ -153,6 +158,39 @@ public class ResetPasswordActivity extends AppCompatActivity {
                         ).show();
                     }
                 });
+    }
+
+    private final android.text.TextWatcher passwordWatcher = new android.text.TextWatcher() {
+
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            String password = s.toString();
+
+            updateRule(tvLength, password.length() >= 6);
+            updateRule(tvUpper, password.matches(".*[A-Z].*"));
+            updateRule(tvNumber, password.matches(".*\\d.*"));
+            updateRule(tvSpecial, password.matches(".*[@$!%*?&].*"));
+        }
+
+        @Override
+        public void afterTextChanged(android.text.Editable s) {}
+    };
+
+    private void updateRule(TextView tv, boolean valid) {
+
+        tv.setCompoundDrawableTintList(null); // giữ màu icon gốc
+
+        if (valid) {
+            tv.setCompoundDrawablesWithIntrinsicBounds(
+                    R.drawable.ic_check, 0, 0, 0);
+        } else {
+            tv.setCompoundDrawablesWithIntrinsicBounds(
+                    R.drawable.ic_close, 0, 0, 0);
+        }
     }
 
 }
