@@ -96,11 +96,25 @@ public class VerifyCodeActivity extends AppCompatActivity {
                 btnVerify.setEnabled(true);
 
                 if (!response.isSuccessful()) {
-                    Toast.makeText(
-                            VerifyCodeActivity.this,
-                            "Lỗi server (" + response.code() + ")",
-                            Toast.LENGTH_SHORT
-                    ).show();
+
+                    try (okhttp3.ResponseBody errorBody = response.errorBody()) {
+
+                        String error = errorBody.string();
+                        org.json.JSONObject json = new org.json.JSONObject(error);
+                        String message = json.getString("message");
+
+                        tvOtpError.setText(message);
+                        tvOtpError.setVisibility(View.VISIBLE);
+
+                    } catch (Exception e) {
+
+                        Toast.makeText(
+                                VerifyCodeActivity.this,
+                                "Lỗi server (" + response.code() + ")",
+                                Toast.LENGTH_SHORT
+                        ).show();
+                    }
+
                     return;
                 }
 

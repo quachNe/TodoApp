@@ -1,6 +1,7 @@
 package com.example.todoapp.activities;
 
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
@@ -31,6 +32,8 @@ public class ChangePasswordActivity extends AppCompatActivity {
     private MaterialButton btnSaveChange;
     private TextView tvError;
 
+    TextView tvLength, tvUpper, tvNumber, tvSpecial;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,6 +46,38 @@ public class ChangePasswordActivity extends AppCompatActivity {
         edtConfirmPassword = findViewById(R.id.edtConfirmPassword);
         btnSaveChange = findViewById(R.id.btnSaveChange);
         tvError = findViewById(R.id.tvError);
+
+        tvLength = findViewById(R.id.tvLength);
+        tvUpper = findViewById(R.id.tvUpper);
+        tvNumber = findViewById(R.id.tvNumber);
+        tvSpecial = findViewById(R.id.tvSpecial);
+
+        // ===== REALTIME PASSWORD VALIDATION =====
+        edtNewPassword.addTextChangedListener(new android.text.TextWatcher() {
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                String password = s.toString();
+
+                boolean lengthValid = password.length() >= 6;
+                boolean upperValid = password.matches(".*[A-Z].*");
+                boolean numberValid = password.matches(".*[0-9].*");
+                boolean specialValid = password.matches(".*[!@#$%^&*].*");
+
+                checkCondition(lengthValid, tvLength);
+                checkCondition(upperValid, tvUpper);
+                checkCondition(numberValid, tvNumber);
+                checkCondition(specialValid, tvSpecial);
+            }
+
+            @Override
+            public void afterTextChanged(android.text.Editable s) {}
+
+        });
 
         // ========================== Xự kiện========================
         btnBack.setOnClickListener(v -> {
@@ -79,12 +114,6 @@ public class ChangePasswordActivity extends AppCompatActivity {
             edtConfirmPassword.requestFocus();
             return;
         }
-
-        if (newPassword.length() < 6) {
-            showError("Mật khẩu mới phải từ 6 ký tự");
-            return;
-        }
-
         if (newPassword.equals(oldPassword)) {
             showError("Mật khẩu mới không được trùng với mật khẩu cũ");
             return;
@@ -94,6 +123,18 @@ public class ChangePasswordActivity extends AppCompatActivity {
             showError("Mật khẩu xác nhận không khớp");
             return;
         }
+
+        boolean lengthValid = newPassword.length() >= 6;
+        boolean upperValid = newPassword.matches(".*[A-Z].*");
+        boolean numberValid = newPassword.matches(".*[0-9].*");
+        boolean specialValid = newPassword.matches(".*[!@#$%^&*].*");
+
+        if (!lengthValid || !upperValid || !numberValid || !specialValid) {
+            showError("Mật khẩu chưa đáp ứng đủ điều kiện");
+            return;
+        }
+
+
 
         tvError.setVisibility(View.GONE);
 
@@ -168,5 +209,17 @@ public class ChangePasswordActivity extends AppCompatActivity {
         Button positiveBtn = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
         positiveBtn.setTextColor(Color.BLACK);
     }
+    private void checkCondition(boolean valid, TextView tv) {
 
+        if (valid) {
+            tv.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_check, 0, 0, 0);
+            tv.setTextColor(Color.parseColor("#16A34A"));
+            tv.setCompoundDrawableTintList(ColorStateList.valueOf(Color.parseColor("#16A34A")));
+        } else {
+            tv.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_close, 0, 0, 0);
+            tv.setTextColor(Color.parseColor("#DC2626"));
+            tv.setCompoundDrawableTintList(ColorStateList.valueOf(Color.parseColor("#DC2626")));
+        }
+
+    }
 }

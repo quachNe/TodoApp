@@ -8,11 +8,14 @@ public class UserRequest {
 
     private String username;
 
-    public UserRequest(String fullName, String gender, String avatar, String username) {
+    private String email;
+
+    public UserRequest(String fullName, String gender, String avatar, String username, String email) {
         this.fullName = fullName;
         this.gender = gender;
         this.avatar = avatar;
         this.username = username;
+        this.email = email;
     }
 
     public String getFullName() {
@@ -30,4 +33,6 @@ public class UserRequest {
     public String getUsername() {
         return username;
     }
+
+    public String getEmail() { return email; }
 }

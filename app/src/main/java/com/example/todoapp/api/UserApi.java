@@ -29,6 +29,7 @@ public interface UserApi {
     Call<UserResponse> updateProfile(
             @Part("full_name") RequestBody fullName,
             @Part("gender") RequestBody gender,
+            @Part("email") RequestBody email,
             @Part MultipartBody.Part avatar
     );
 

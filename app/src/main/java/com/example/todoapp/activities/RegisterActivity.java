@@ -1,8 +1,11 @@
 package com.example.todoapp.activities;
 
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -24,6 +27,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
+import org.json.JSONObject;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -32,7 +37,9 @@ public class RegisterActivity extends AppCompatActivity {
 
     // UI
     TextView tvLogin, tvError;
-    TextInputEditText edtUsername, edtPassword, edtFullname;
+    // Password hint
+    TextView tvLength, tvUpper, tvNumber, tvSpecial;
+    TextInputEditText edtUsername, edtPassword, edtFullname, edtEmail;
     TextInputLayout tilUsername, tilPassword;
     MaterialButton btnRegister;
 
@@ -48,9 +55,15 @@ public class RegisterActivity extends AppCompatActivity {
         tvLogin = findViewById(R.id.tvLogin);
         tvError = findViewById(R.id.tvError);
 
+        tvLength = findViewById(R.id.tvLength);
+        tvUpper = findViewById(R.id.tvUpper);
+        tvNumber = findViewById(R.id.tvNumber);
+        tvSpecial = findViewById(R.id.tvSpecial);
+
         edtUsername = findViewById(R.id.edtUsername);
         edtPassword = findViewById(R.id.edtPassword);
         edtFullname = findViewById(R.id.edtFullname);
+        edtEmail = findViewById(R.id.edtEmail);
 
         tilUsername = findViewById(R.id.tilUsername);
         tilPassword = findViewById(R.id.tilPassword);
@@ -66,7 +79,32 @@ public class RegisterActivity extends AppCompatActivity {
         tvLogin.setOnClickListener(v ->
                 startActivity(new Intent(this, LoginActivity.class))
         );
+        // Password realtime validate
+        edtPassword.addTextChangedListener(new TextWatcher() {
 
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                String password = s.toString();
+
+                boolean lengthValid = password.length() >= 6;
+                boolean upperValid = password.matches(".*[A-Z].*");
+                boolean numberValid = password.matches(".*[0-9].*");
+                boolean specialValid = password.matches(".*[!@#$%^&*].*");
+
+                checkCondition(lengthValid, tvLength);
+                checkCondition(upperValid, tvUpper);
+                checkCondition(numberValid, tvNumber);
+                checkCondition(specialValid, tvSpecial);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+
+        });
         // Click đăng ký
         btnRegister.setOnClickListener(v -> register());
     }
@@ -88,10 +126,22 @@ public class RegisterActivity extends AppCompatActivity {
         String fullName = edtFullname.getText() != null
                 ? edtFullname.getText().toString().trim()
                 : "";
-
+        String email = edtEmail.getText() != null
+                ? edtEmail.getText().toString().trim()
+                : "";
     /* =======================
        VALIDATE INPUT
        ======================= */
+        if (email.isEmpty()) {
+            edtEmail.requestFocus();
+            showError("Vui lòng nhập email");
+            return;
+        }
+        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            edtEmail.requestFocus();
+            showError("Email không hợp lệ");
+            return;
+        }
         if (fullName.isEmpty()) {
             edtFullname.requestFocus();
             return;
@@ -127,22 +177,27 @@ public class RegisterActivity extends AppCompatActivity {
        ======================= */
         AuthApi authApi = ApiClient.getClient(this).create(AuthApi.class);
         RegisterRequest request =
-                new RegisterRequest(username, password, fullName, gender);
+                new RegisterRequest(username, password, fullName, gender,email);
 
         authApi.register(request).enqueue(new Callback<RegisterResponse>() {
 
             @Override
             public void onResponse(Call<RegisterResponse> call,
                                    Response<RegisterResponse> response) {
-                // Username đã tồn tại (BE trả 400)
-                if (response.code() == 400) {
-                    showError("Tên đăng nhập đã tồn tại");
-                    return;
-                }
 
-                // Lỗi server khác
                 if (!response.isSuccessful()) {
-                    showError("Lỗi server (" + response.code() + ")");
+
+                    try {
+                        String errorBody = response.errorBody().string();
+                        JSONObject json = new JSONObject(errorBody);
+                        String message = json.getString("message");
+
+                        showError(message);
+
+                    } catch (Exception e) {
+                        showError("Lỗi server (" + response.code() + ")");
+                    }
+
                     return;
                 }
 
@@ -159,7 +214,6 @@ public class RegisterActivity extends AppCompatActivity {
                     showError(res.getMessage());
                 }
             }
-
             @Override
             public void onFailure(Call<RegisterResponse> call, Throwable t) {
                 showError("Không kết nối được server");
@@ -194,5 +248,17 @@ public class RegisterActivity extends AppCompatActivity {
         positiveBtn.setTextColor(Color.BLACK);
     }
 
+    private void checkCondition(boolean valid, TextView tv) {
 
+        if (valid) {
+            tv.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_check, 0, 0, 0);
+            tv.setTextColor(Color.parseColor("#16A34A"));
+            tv.setCompoundDrawableTintList(ColorStateList.valueOf(Color.parseColor("#16A34A")));
+        } else {
+            tv.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_close, 0, 0, 0);
+            tv.setTextColor(Color.parseColor("#DC2626"));
+            tv.setCompoundDrawableTintList(ColorStateList.valueOf(Color.parseColor("#DC2626")));
+        }
+
+    }
 }

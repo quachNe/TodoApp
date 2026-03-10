@@ -84,11 +84,27 @@ public class ForgotPasswordActivity extends AppCompatActivity {
                             return;
                         }
                         if (!response.isSuccessful()) {
-                            Toast.makeText(
-                                    ForgotPasswordActivity.this,
-                                    "Lỗi server (" + response.code() + ")",
-                                    Toast.LENGTH_SHORT
-                            ).show();
+
+                            try {
+                                String errorBody = response.errorBody().string();
+
+                                org.json.JSONObject jsonObject = new org.json.JSONObject(errorBody);
+                                String message = jsonObject.getString("message");
+
+                                Toast.makeText(
+                                        ForgotPasswordActivity.this,
+                                        message,
+                                        Toast.LENGTH_LONG
+                                ).show();
+
+                            } catch (Exception e) {
+                                Toast.makeText(
+                                        ForgotPasswordActivity.this,
+                                        "Lỗi server (" + response.code() + ")",
+                                        Toast.LENGTH_SHORT
+                                ).show();
+                            }
+
                             return;
                         }
 
