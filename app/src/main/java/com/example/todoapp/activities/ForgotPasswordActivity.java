@@ -2,13 +2,11 @@ package com.example.todoapp.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 import com.example.todoapp.R;
 import com.example.todoapp.api.ApiClient;
@@ -17,7 +15,6 @@ import com.example.todoapp.requests.ForgotPasswordRequest;
 import com.example.todoapp.responses.ForgotPasswordResponse;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -26,8 +23,8 @@ import retrofit2.Response;
 public class ForgotPasswordActivity extends AppCompatActivity {
 
     private MaterialButton btnBack, btnSendCode;
-
     private TextInputEditText edtEmail, edtUsername;
+    private FrameLayout loadingOverlay;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,53 +35,57 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         btnSendCode = findViewById(R.id.btnSendCode);
         edtEmail = findViewById(R.id.edtEmail);
         edtUsername = findViewById(R.id.edtUsername);
+        loadingOverlay = findViewById(R.id.loadingOverlay);
 
-        btnBack.setOnClickListener(v -> {
-            finish();
-        });
+        loadingOverlay.bringToFront();
+
+        btnBack.setOnClickListener(v -> finish());
 
         btnSendCode.setOnClickListener(v -> callForgotPasswordApi());
     }
-
 
     private void callForgotPasswordApi() {
 
         String email = edtEmail.getText() != null
                 ? edtEmail.getText().toString().trim()
                 : "";
+
         String username = edtUsername.getText() != null
                 ? edtUsername.getText().toString().trim()
                 : "";
+        if (username.isEmpty()) {
+            edtUsername.requestFocus();
+            return;
+        }
 
         if (email.isEmpty()) {
             edtEmail.requestFocus();
             return;
         }
 
-        if (username.isEmpty()) {
-            edtUsername.requestFocus();
-            return;
-        }
-
         btnSendCode.setEnabled(false);
+        showLoading();
 
         AuthApi authApi = ApiClient.getClient(this).create(AuthApi.class);
+
         ForgotPasswordRequest request = new ForgotPasswordRequest(email, username);
 
         authApi.forgotPassword(request)
                 .enqueue(new Callback<ForgotPasswordResponse>() {
+
                     @Override
                     public void onResponse(Call<ForgotPasswordResponse> call,
                                            Response<ForgotPasswordResponse> response) {
 
+                        hideLoading();
                         btnSendCode.setEnabled(true);
 
                         if (!response.isSuccessful()) {
 
                             try {
+
                                 String errorBody = response.errorBody().string();
                                 org.json.JSONObject json = new org.json.JSONObject(errorBody);
-
                                 String message = json.getString("message");
 
                                 Toast.makeText(
@@ -94,6 +95,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
                                 ).show();
 
                             } catch (Exception e) {
+
                                 Toast.makeText(
                                         ForgotPasswordActivity.this,
                                         "Lỗi server (" + response.code() + ")",
@@ -107,11 +109,13 @@ public class ForgotPasswordActivity extends AppCompatActivity {
                         ForgotPasswordResponse res = response.body();
 
                         if (res == null) {
+
                             Toast.makeText(
                                     ForgotPasswordActivity.this,
                                     "Dữ liệu phản hồi không hợp lệ",
                                     Toast.LENGTH_SHORT
                             ).show();
+
                             return;
                         }
 
@@ -134,6 +138,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
                             startActivity(intent);
 
                         } else {
+
                             Toast.makeText(
                                     ForgotPasswordActivity.this,
                                     res.getMessage(),
@@ -144,7 +149,10 @@ public class ForgotPasswordActivity extends AppCompatActivity {
 
                     @Override
                     public void onFailure(Call<ForgotPasswordResponse> call, Throwable t) {
+
+                        hideLoading();
                         btnSendCode.setEnabled(true);
+
                         Toast.makeText(
                                 ForgotPasswordActivity.this,
                                 "Không kết nối được server",
@@ -152,5 +160,25 @@ public class ForgotPasswordActivity extends AppCompatActivity {
                         ).show();
                     }
                 });
+    }
+
+    private void showLoading() {
+
+        loadingOverlay.setAlpha(0f);
+        loadingOverlay.setVisibility(View.VISIBLE);
+
+        loadingOverlay.animate()
+                .alpha(1f)
+                .setDuration(200)
+                .start();
+    }
+
+    private void hideLoading() {
+
+        loadingOverlay.animate()
+                .alpha(0f)
+                .setDuration(200)
+                .withEndAction(() -> loadingOverlay.setVisibility(View.GONE))
+                .start();
     }
 }
