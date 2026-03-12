@@ -65,6 +65,8 @@ public class CategoryDetailActivity extends AppCompatActivity {
 
     private boolean isEdit = false;
     private int editingTaskId = -1;
+    private android.os.Handler handler = new android.os.Handler();
+    private Runnable deadlineChecker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,6 +104,7 @@ public class CategoryDetailActivity extends AppCompatActivity {
         String categoryName = getIntent().getStringExtra("categoryName");
         categoryTitle.setText(categoryName);
         loadTasksFromApi();
+        startDeadlineChecker();
 
         // ============================ Xử lý sự kiện ============================
         cardTotal.setOnClickListener(v -> {
@@ -381,6 +384,27 @@ public class CategoryDetailActivity extends AppCompatActivity {
         });
     }
 
+    private void startDeadlineChecker() {
+
+        deadlineChecker = () -> {
+
+            if (allTasks != null) {
+
+                for (Task task : allTasks) {
+
+                    if (!task.isCompleted() && isTaskExpired(task)) {
+                        applyFilter();
+                        break;
+                    }
+                }
+            }
+
+            handler.postDelayed(deadlineChecker, 30000);
+        };
+
+        handler.post(deadlineChecker);
+    }
+
     private void applyFilter() {
 
         layoutTaskContainer.removeAllViews();
@@ -557,8 +581,12 @@ public class CategoryDetailActivity extends AppCompatActivity {
         btnDelete.setOnClickListener(v -> {
             deleteTask(task.getId(), itemView);
         });
-        enableSwipe(card);
+//        enableSwipe(card);
         CheckBox cbCompleted = itemView.findViewById(R.id.cbCompleted);
+        cbCompleted.setChecked(task.isCompleted());
+        cbCompleted.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            updateTaskCompleted(task.getId(), isChecked);
+        });
         if (isTaskExpired(task)) {
 
             // Làm mờ card một chút
@@ -571,13 +599,41 @@ public class CategoryDetailActivity extends AppCompatActivity {
             btnEdit.setVisibility(View.GONE);
 
             // Không cho swipe (nếu swipe dùng cho edit)
-            card.setOnTouchListener((v, event) -> true);
+//            card.setOnTouchListener((v, event) -> true);
 
             // VẪN cho delete
             btnDelete.setEnabled(true);
         }
+        if (!isTaskExpired(task)) {
+            enableSwipe(card);
+        }
     }
+    private void updateTaskCompleted(int taskId, boolean completed) {
 
+        TaskApi api = ApiClient.getClient(this).create(TaskApi.class);
+
+        TaskRequest request = new TaskRequest();
+        request.setCompleted(completed);
+
+        api.updateTask(taskId, request).enqueue(new Callback<TaskResponse>() {
+
+            @Override
+            public void onResponse(Call<TaskResponse> call,
+                                   Response<TaskResponse> response) {
+
+                if (!response.isSuccessful()) {
+                    Toast.makeText(CategoryDetailActivity.this,
+                            "Không cập nhật được", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<TaskResponse> call, Throwable t) {
+                Toast.makeText(CategoryDetailActivity.this,
+                        "Lỗi server", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
     // ===============================
     // DELETE TASK API
     // ===============================
@@ -696,5 +752,14 @@ public class CategoryDetailActivity extends AppCompatActivity {
         }
 
         return super.dispatchTouchEvent(ev);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if (handler != null && deadlineChecker != null) {
+            handler.removeCallbacks(deadlineChecker);
+        }
     }
 }
