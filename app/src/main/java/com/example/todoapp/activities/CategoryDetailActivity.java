@@ -28,6 +28,8 @@ import com.example.todoapp.api.TaskApi;
 import com.example.todoapp.models.Task;
 import com.example.todoapp.requests.TaskRequest;
 import com.example.todoapp.responses.TaskResponse;
+import com.example.todoapp.utils.SessionManager;
+import com.example.todoapp.utils.TaskScheduler;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
@@ -98,7 +100,6 @@ public class CategoryDetailActivity extends AppCompatActivity {
         edtTaskName = findViewById(R.id.edtTaskName);
         txtTaskError = findViewById(R.id.txtTaskError);
         edtSearch = findViewById(R.id.edtSearch);
-
         // ============================ Lấy dữ liệu ============================
         categoryId = getIntent().getIntExtra("categoryId", -1);
         String categoryName = getIntent().getStringExtra("categoryName");
@@ -155,8 +156,8 @@ public class CategoryDetailActivity extends AppCompatActivity {
 
 
         btnAddTask.setOnClickListener(v -> {
-                cardModal.setVisibility(View.VISIBLE);
-                overlay.setVisibility(View.VISIBLE);
+            cardModal.setVisibility(View.VISIBLE);
+            overlay.setVisibility(View.VISIBLE);
         });
 
         txtPickDate.setOnClickListener(v -> showDatePicker());
@@ -369,7 +370,7 @@ public class CategoryDetailActivity extends AppCompatActivity {
                     tvPending.setText("Chưa hoàn thành (" + summary.getPending() + ")");
 
                     applyFilter();
-
+                    scheduleRemindersForPendingTasks();
                 } else {
                     Toast.makeText(CategoryDetailActivity.this,
                             "Load thất bại", Toast.LENGTH_SHORT).show();
@@ -393,6 +394,8 @@ public class CategoryDetailActivity extends AppCompatActivity {
                 for (Task task : allTasks) {
 
                     if (!task.isCompleted() && isTaskExpired(task)) {
+
+                        // chỉ refresh UI
                         applyFilter();
                         break;
                     }
@@ -401,6 +404,8 @@ public class CategoryDetailActivity extends AppCompatActivity {
 
             handler.postDelayed(deadlineChecker, 30000);
         };
+
+        handler.post(deadlineChecker);
 
         handler.post(deadlineChecker);
     }
@@ -624,6 +629,24 @@ public class CategoryDetailActivity extends AppCompatActivity {
                 if (!response.isSuccessful()) {
                     Toast.makeText(CategoryDetailActivity.this,
                             "Không cập nhật được", Toast.LENGTH_SHORT).show();
+                } else {
+
+                    // cập nhật trạng thái trong list local
+                    for (Task task : allTasks) {
+                        if (task.getId() == taskId) {
+                            task.setCompleted(completed);
+                            break;
+                        }
+                    }
+
+                    // nếu completed thì hủy reminder
+                    if (completed) {
+                        TaskScheduler.cancelReminders(CategoryDetailActivity.this, taskId);
+                    }
+
+                    // refresh UI theo filter hiện tại
+                    runOnUiThread(() -> applyFilter());
+                    updateSummary();
                 }
             }
 
@@ -634,10 +657,58 @@ public class CategoryDetailActivity extends AppCompatActivity {
             }
         });
     }
+
+    private void updateSummary() {
+
+        int total = allTasks.size();
+        int completed = 0;
+        int pending = 0;
+        int today = 0;
+
+        Date now = new Date();
+
+        SimpleDateFormat isoFormat =
+                new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
+
+        SimpleDateFormat dateOnly =
+                new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+
+        for (Task task : allTasks) {
+
+            if (task.isCompleted()) {
+                completed++;
+            } else {
+                pending++;
+            }
+
+            try {
+                if (task.getDeadline() != null) {
+
+                    Date deadline = isoFormat.parse(task.getDeadline());
+
+                    if (dateOnly.format(deadline)
+                            .equals(dateOnly.format(now))) {
+                        today++;
+                    }
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        tvTotal.setText("Tổng (" + total + ")");
+        tvToday.setText("Hôm nay (" + today + ")");
+        tvCompleted.setText("Đã hoàn thành (" + completed + ")");
+        tvPending.setText("Chưa hoàn thành (" + pending + ")");
+    }
     // ===============================
     // DELETE TASK API
     // ===============================
     private void deleteTask(int taskId, View itemView) {
+
+        // Hủy nhắc nhở trước khi xóa
+        TaskScheduler.cancelReminders(this, taskId);
 
         TaskApi api = ApiClient.getClient(this).create(TaskApi.class);
 
@@ -646,8 +717,17 @@ public class CategoryDetailActivity extends AppCompatActivity {
             public void onResponse(Call<TaskResponse> call,
                                    Response<TaskResponse> response) {
 
-                if (response.isSuccessful()) {
+                if( response.isSuccessful()) {
                     layoutTaskContainer.removeView(itemView);
+
+                    for (int i = 0; i < allTasks.size(); i++) {
+                        if (allTasks.get(i).getId() == taskId) {
+                            allTasks.remove(i);
+                            break;
+                        }
+                    }
+
+                    applyFilter();
                     Toast.makeText(CategoryDetailActivity.this,
                             "Đã xóa", Toast.LENGTH_SHORT).show();
                 }
@@ -660,7 +740,6 @@ public class CategoryDetailActivity extends AppCompatActivity {
             }
         });
     }
-
     // ===============================
     // SWIPE
     // ===============================
@@ -727,31 +806,34 @@ public class CategoryDetailActivity extends AppCompatActivity {
         });
     }
 
-    @Override
-    public boolean dispatchTouchEvent(MotionEvent ev) {
+    // ===============================
+    // SCHEDULE REMINDERS
+    // ===============================
+    private void scheduleRemindersForPendingTasks() {
+        if (allTasks == null) return;
+        SessionManager session = new SessionManager(this);
+        String accountName = session.getUserName();
+        categoryId = getIntent().getIntExtra("categoryId", -1);
+        String categoryName = getIntent().getStringExtra("categoryName");
+        SimpleDateFormat isoFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
 
-        if (openedItem != null) {
-
-            if (ev.getAction() == MotionEvent.ACTION_DOWN) {
-
-                int[] location = new int[2];
-                openedItem.getLocationOnScreen(location);
-
-                float x = ev.getRawX();
-                float y = ev.getRawY();
-
-                if (!(x > location[0] &&
-                        x < location[0] + openedItem.getWidth() &&
-                        y > location[1] &&
-                        y < location[1] + openedItem.getHeight())) {
-
-                    openedItem.animate().translationX(0).setDuration(200);
-                    openedItem = null;
+        for (Task task : allTasks) {
+            if (!task.isCompleted() && task.getDeadline() != null) {
+                try {
+                    Date deadline = isoFormat.parse(task.getDeadline());
+                    long deadlineMillis = deadline.getTime();
+                    TaskScheduler.scheduleTask(
+                            this,
+                            task.getId(),
+                            deadlineMillis,
+                            task.getTaskName(),
+                            accountName,
+                            categoryName);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
         }
-
-        return super.dispatchTouchEvent(ev);
     }
 
     @Override

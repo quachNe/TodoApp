@@ -11,6 +11,7 @@ public class SessionManager {
     private static final String PREF_NAME = "todo_app";
     private static final String TOKEN_KEY = "token";
     private static final String USER_ID = "user_id";
+    private static final String USER_NAME = "username";
 
     private SharedPreferences prefs;
 
@@ -18,10 +19,11 @@ public class SessionManager {
         prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
     }
 
-    public void saveSession(String token, int userId) {
+    public void saveSession(String token, int userId, String username) {
         prefs.edit()
                 .putString(TOKEN_KEY, token)
                 .putInt(USER_ID, userId)
+                .putString(USER_NAME, username)
                 .apply();
     }
 
@@ -31,6 +33,10 @@ public class SessionManager {
 
     public int getUserId() {
         return prefs.getInt(USER_ID, -1);
+    }
+
+    public String getUserName() {
+        return prefs.getString(USER_NAME, "Unknown");
     }
 
     // ✅ CHECK LOGIN + TOKEN EXPIRE

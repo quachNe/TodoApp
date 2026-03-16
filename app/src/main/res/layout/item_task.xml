@@ -68,7 +68,6 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="7dp"
-                android:text="Làm bài tập giải tích"
                 android:textColor="#111827"
                 android:textSize="18sp"
                 android:textStyle="bold"

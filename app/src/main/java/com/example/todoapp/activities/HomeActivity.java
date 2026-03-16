@@ -1,7 +1,11 @@
 package com.example.todoapp.activities;
 
+import android.Manifest;
+import android.app.AlarmManager;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
@@ -19,6 +23,8 @@ import android.view.ViewGroup;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.bumptech.glide.Glide;
 import com.example.todoapp.R;
@@ -29,6 +35,7 @@ import com.example.todoapp.models.User;
 import com.example.todoapp.requests.CategoryRequest;
 import com.example.todoapp.responses.CategoryResponse;
 import com.example.todoapp.responses.UserResponse;
+import com.example.todoapp.utils.NotificationHelper;
 import com.example.todoapp.utils.SessionManager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
@@ -69,6 +76,24 @@ public class HomeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+
+        NotificationHelper.createChannel(this);
+
+        // Request notification permission for API 33+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, 1001);
+            }
+        }
+
+        // Request exact alarm permission for API 31+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+            if (alarmManager != null && !alarmManager.canScheduleExactAlarms()) {
+                Intent intent = new Intent(android.provider.Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM);
+                startActivity(intent);
+            }
+        }
 
         /* ================= ÁNH XẠ VIEW ================= */
         imgAvatar = findViewById(R.id.imgAvatar);
@@ -123,6 +148,7 @@ public class HomeActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         loadUser();
+        loadCategories();
     }
 
 
