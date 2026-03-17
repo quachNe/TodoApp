@@ -22,28 +22,60 @@ public class TaskScheduler {
         cancelReminders(context, taskId);
 
         // Schedule reminder 1 day before
-        scheduleReminder(
-                context,
-                taskId,
-                deadlineMillis - 24 * 60 * 60 * 1000,
-                taskName,
-                accountName,
-                categoryName,
-                "1_day"
-        );
+//        scheduleReminder(
+//                context,
+//                taskId,
+//                deadlineMillis - 24 * 60 * 60 * 1000,
+//                taskName,
+//                accountName,
+//                categoryName,
+//                "1_day"
+//        );
 
         // Schedule reminder 1 hour before
+//        scheduleReminder(
+//                context,
+//                taskId,
+//                deadlineMillis - 60 * 60 * 1000,
+//                taskName,
+//                accountName,
+//                categoryName,
+//                "1_hour"
+//        );
+
+        // Schedule at deadline
+//        scheduleReminder(
+//                context,
+//                taskId,
+//                deadlineMillis,
+//                taskName,
+//                accountName,
+//                categoryName,
+//                "deadline"
+//        );
+
+        // Nhắc trước 5 phút
         scheduleReminder(
                 context,
                 taskId,
-                deadlineMillis - 60 * 60 * 1000,
+                deadlineMillis - 5 * 60 * 1000,
                 taskName,
                 accountName,
                 categoryName,
-                "1_hour"
-        );
+                "1_day");
 
-        // Schedule at deadline
+
+        //TEST: nhắc trước 2 phút
+        scheduleReminder(
+                context,
+                taskId,
+                deadlineMillis - 2 * 60 * 1000,
+                taskName,
+                accountName,
+                categoryName,
+                "1_hour");
+
+        //TEST: đúng deadline
         scheduleReminder(
                 context,
                 taskId,
@@ -51,16 +83,7 @@ public class TaskScheduler {
                 taskName,
                 accountName,
                 categoryName,
-                "deadline"
-        );
-
-//        scheduleReminder(context, taskId, deadlineMillis - 5 * 60 * 1000, taskName, "1_day");
-
-    // TEST: nhắc trước 2 phút
-//        scheduleReminder(context, taskId, deadlineMillis - 2 * 60 * 1000, taskName, "1_hour");
-
-    // TEST: đúng deadline
-//        scheduleReminder(context, taskId, deadlineMillis, taskName, "deadline");
+                "deadline");
     }
 
     private static void scheduleReminder(Context context,

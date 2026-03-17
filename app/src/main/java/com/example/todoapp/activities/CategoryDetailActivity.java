@@ -584,29 +584,26 @@ public class CategoryDetailActivity extends AppCompatActivity {
         });
 
         btnDelete.setOnClickListener(v -> {
-            deleteTask(task.getId(), itemView);
+            new androidx.appcompat.app.AlertDialog.Builder(this)
+                    .setTitle("Xóa công việc?")
+                    .setMessage("Công việc này sẽ bị xóa vĩnh viễn. Bạn có chắc không?")
+                    .setPositiveButton("Xóa", (dialog, which) -> {
+                        deleteTask(task.getId(), itemView);
+                    })
+                    .setNegativeButton("Hủy", null)
+                    .show();
         });
-//        enableSwipe(card);
+
         CheckBox cbCompleted = itemView.findViewById(R.id.cbCompleted);
         cbCompleted.setChecked(task.isCompleted());
         cbCompleted.setOnCheckedChangeListener((buttonView, isChecked) -> {
             updateTaskCompleted(task.getId(), isChecked);
         });
+
         if (isTaskExpired(task)) {
-
-            // Làm mờ card một chút
             card.setAlpha(0.6f);
-
-            // Không cho tick
             cbCompleted.setEnabled(false);
-
-            // Không cho chỉnh sửa
             btnEdit.setVisibility(View.GONE);
-
-            // Không cho swipe (nếu swipe dùng cho edit)
-//            card.setOnTouchListener((v, event) -> true);
-
-            // VẪN cho delete
             btnDelete.setEnabled(true);
         }
         if (!isTaskExpired(task)) {
@@ -728,6 +725,7 @@ public class CategoryDetailActivity extends AppCompatActivity {
                     }
 
                     applyFilter();
+                    updateSummary();
                     Toast.makeText(CategoryDetailActivity.this,
                             "Đã xóa", Toast.LENGTH_SHORT).show();
                 }
